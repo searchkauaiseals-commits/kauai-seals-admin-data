@@ -760,7 +760,6 @@
     return new Promise((resolve, reject) => {
       const dialog = document.getElementById('EmptyPermidDialog');
       const confirmEmptyPermidMessage = dialog.querySelector('#EmptyPermidMessage');
-      const closeButton = dialog.querySelector('#ConfirmClose');
 
       console.log('Dialog elements:', { dialog, confirmEmptyPermidMessage });
 
@@ -789,16 +788,11 @@
       okButton.addEventListener('click', function() {
         console.log('OK button clicked');
         this.classList.add('blink-on-click');
-        
+
         setTimeout(() => {
           closeModal();
           document.getElementById('permid').focus(); // Set focus to permid input
         }, 500); // Match this duration with the blink animation duration
-      });
-
-      closeButton.addEventListener('click', () => {
-        closeModal();
-        document.getElementById('permid').focus(); // Set focus to permid input
       });
     });
   }
