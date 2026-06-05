@@ -1869,17 +1869,17 @@ function showSheetMultipleMatchesDialog(matches) {
   SpreadsheetApp.getUi().showModalDialog(html, 'Matching Records');
   
   // Store matches in PropertiesService for later retrieval
-  PropertiesService.getScriptProperties().setProperty('matches', JSON.stringify(matches));
+  PropertiesService.getUserProperties().setProperty('matches', JSON.stringify(matches));
 }
 
 /**
- * Retrieves the matches stored in the script properties.
+ * Retrieves the matches stored in user properties (per-user, not shared).
  *
  * @returns {Array<Object>} - An array of match objects parsed from JSON.
  */
 function getMatches() {
   logCall("getmatches", {});
-  var matchesJson = PropertiesService.getScriptProperties().getProperty('matches');
+  var matchesJson = PropertiesService.getUserProperties().getProperty('matches');
   return JSON.parse(matchesJson);
 }
 
