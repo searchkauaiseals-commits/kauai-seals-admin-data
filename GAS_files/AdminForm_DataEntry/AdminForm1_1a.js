@@ -125,12 +125,12 @@ function onOpen() {
       .addItem('Set no. of backup', 'setNumberOfBackups') // Option to set number of backups
       .addItem('Destination', 'setDestinationFolder')) // Option to set backup destination folder
     .addItem('January Age Update', 'OpenAgeAndSzDialog') // Option to increment age/Sz/Sz1 on Jan 1.
-    .addToUi(); // Add the menu to the UI    
+    .addItem('Sync Seal Log', 'syncSightingLogManual') // Option to manually sync the Complete Seal Log
+    .addToUi(); // Add the menu to the UI
 
   // Call functions to format sheets and clear search box
   formatSheets(); // Custom function to apply formatting
-  clearSearchBox(); // Clear search input when the sheet is opened  
-  syncCompleteSealLog();
+  clearSearchBox(); // Clear search input when the sheet is opened
 }
 
 /**
@@ -332,7 +332,58 @@ function createSheetTriggers() {
     .create();
   Logger.log("Daily trigger for 'backupSpreadsheet' created (10:00 PM-10:59 PM).");
 
+  ScriptApp.newTrigger('syncCompleteSealLogTrigger')
+    .timeBased()
+    .everyHours(2)
+    .create();
+  Logger.log("Every-2-hour trigger for 'syncCompleteSealLogTrigger' created (runs 7am-7pm Hawaii only).");
+
   Logger.log("All specified triggers have been created successfully.");
+}
+
+/**
+ * Returns true if the current time falls within the sighting sync window
+ * (7:00am–7:00pm Hawaii time, Pacific/Honolulu).
+ * Used by syncCompleteSealLogTrigger() to skip overnight runs.
+ *
+ * @returns {boolean}
+ */
+function isSyncWindowOpen() {
+  const now = new Date();
+  const hawaiiTime = new Date(now.toLocaleString("en-US", { timeZone: "Pacific/Honolulu" }));
+  const hour = hawaiiTime.getHours();
+  return hour >= 7 && hour < 19;
+}
+
+/**
+ * Time-trigger wrapper for syncCompleteSealLog().
+ * Skips the sync if called outside 7am–7pm Hawaii time.
+ * Called every 2 hours by the time-based trigger in createSheetTriggers().
+ */
+function syncCompleteSealLogTrigger() {
+  if (!isSyncWindowOpen()) {
+    Logger.log("syncCompleteSealLogTrigger: Outside sync window. Skipping.");
+    return;
+  }
+  try {
+    syncCompleteSealLog();
+  } catch (e) {
+    Logger.log("syncCompleteSealLogTrigger: ERROR — " + e.message);
+  }
+}
+
+/**
+ * Manual sync wrapper called from Admin Menu → Sync Seal Log.
+ * Bypasses the time window check since the admin is explicitly requesting it.
+ * Shows a UI alert on completion or failure.
+ */
+function syncSightingLogManual() {
+  try {
+    syncCompleteSealLog();
+    SpreadsheetApp.getUi().alert("Seal Log sync completed successfully.");
+  } catch (e) {
+    SpreadsheetApp.getUi().alert("Seal Log sync failed: " + e.message);
+  }
 }
 
 /**
