@@ -2250,6 +2250,11 @@ function EditRecord(formData, rowNumber) {
   ws.getRange(rowNumber, 7, 1, 12).setValues([updatedRowPart3]);
   ws.getRange(rowNumber, 20, 1, updatedRowPart4.length).setValues([updatedRowPart4]);
 
+  // Restore the BD search-index formula immediately — setValues() above overwrote it
+  // with the evaluated string. This call is unconditional so BD is never left stale
+  // even if setFocusAndHighlightLater() fails or is not reached.
+  populateCombinedColumnFormulaForRow(rowNumber);
+
   // Log the activity
   try {
     var userEmail = Session.getActiveUser().getEmail();
