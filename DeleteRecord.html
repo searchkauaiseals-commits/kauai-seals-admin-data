@@ -761,12 +761,12 @@
             const yesButton = document.getElementById('confirmYes');
             const noButton = document.getElementById('confirmNo');
 
-            if (!dialog || !confirmDeleteMessage || !yesButton || !noButton) {
+            if (!dialog || !confirmMessage || !yesButton || !noButton) {
                 reject(new Error('Custom confirm dialog elements not found'));
                 return;
             }
 
-            confirmDeleteMessage.innerHTML = message;
+            confirmMessage.innerHTML = message;
             dialog.style.display = 'block';
 
             yesButton.onclick = () => {
