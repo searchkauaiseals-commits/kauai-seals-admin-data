@@ -1579,7 +1579,6 @@ function openEditRecordPage(permId) {
   
   // Store the permId and group in script properties for access in EditRecord.html
   PropertiesService.getScriptProperties().setProperty('editPermId', permId);
-  PropertiesService.getScriptProperties().setProperty('editGroup', group);
 }
 
 /**
