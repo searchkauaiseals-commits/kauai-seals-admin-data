@@ -1,0 +1,874 @@
+<!DOCTYPE html>
+<html>
+<head>
+  <meta charset="UTF-8">
+  <title>Delete Record</title>
+    <style>
+      .custom-button {
+          background-color: rgb(247, 243, 243);
+          color: black;
+          font-size: 16px;
+          padding: 5px;
+          cursor: pointer;
+          border: 1px solid black;
+          border-radius: 4px;
+          flex-grow: 1; /* Allows button to grow */
+          min-width: 80px;
+          margin-right: 10px; /* Adds space between buttons */
+          margin-top: 0px;
+          position: relative;
+          top: -2px; /* Adjusts the vertical position */
+      }
+      .custom-button:first-child {
+          margin-right: 50px;
+      }
+      .custom-button:not(#deleteButton) {
+          background-color: rgb(247, 243, 243);
+          color: black;
+      }
+      .custom-button.inverse:not(#deleteButton) {
+          background-color: black;
+          color: rgb(247, 243, 243);
+      }
+      .custom-button:not(#deleteButton):hover {
+        background-color: rgb(255,255,255); 
+        cursor: pointer;
+      }
+      .button-inverse {
+        background-color: currentColor;
+        color: inherit;
+      }
+      #deleteButton.inverse {
+        background-color: white;
+        color: rgb(220,20,60);
+      }
+      #permIdSearch {
+        width: 300px;
+        height: 30px;
+        background-color: #fffec5 !important;
+        color: red !important;
+      }
+      #deleteButton {
+        background-color: rgb(220,20,60) !important;
+        color: white !important;
+      }    
+      .modal {
+        display: none;
+        position: fixed;
+        z-index: 1;
+        left: 0;
+        top: 0;
+        width: 100%;
+        height: 100%;
+        overflow: auto;
+        background-color: rgba(0,0,0,0.4);       
+      }
+      .modal-content {
+        background-color: #fefefe;
+        margin: 15% auto;
+        padding: 20px;
+        border: 3px solid white;
+        border-radius: 6px;
+        width: 20%;
+        max-width: 400px;
+        text-align: center;
+        border: 2px solid black;
+        border-radius: 5px;
+      }
+      button {
+        margin: 10px;
+        padding: 5px 10px;
+        border: 1px solid #888;
+        border-radius: 6px;
+      }
+      #confirmYes {
+        background-color: rgb(220,20,60) !important;
+        color: white !important;
+      }
+      .button-container {
+        display: flex;
+        justify-content: center;
+        margin-top: 20px;
+      }
+      .selectButton {
+        padding: 10px 20px;
+        cursor: pointer;
+        color: black;
+        border: none;
+        border-radius: 5px;
+        font-size: 16px;
+      }
+      .selectButton:hover {
+        background-color: #45a049;
+      }
+      .blink-on-click {
+        animation: blink 0.5s;
+      }
+      .close-button {
+          position: absolute;
+          top: 10px;
+          right: 10px;
+          font-size: 18px;
+          cursor: pointer;
+      }
+      .close {
+          font-size: 36px;
+          font-weight: bold;
+          cursor: pointer;
+          position: absolute;
+          right: 10px;
+          top: 10px;
+      }
+      .close:hover {
+          color: red;
+      }
+      /* Additional styling for form layout */
+      .master-container {
+            width: 1030px;
+            height: 544px;
+            background-color: rgb(214,214,214);
+            display: flex;
+            justify-content: flex-start; /* Aligns items to the top */
+            align-items: flex-start; /* Aligns items to the left */
+            box-sizing: border-box;
+            border-radius: 10px;
+            padding: 10px; /* Optional padding */
+      }
+      .button-container {
+          display: flex;
+          flex-direction: row;
+          margin-top: 0px;
+      }
+      .form-container {
+          width: 1015px;
+          height: 492px;
+          margin-top: -2px;
+          margin-left: -3px;
+          background-color: rgb(247,243,243);
+          border: 1px;
+          border-radius: 10px;
+      } 
+      #form-overlay {
+          position: absolute;
+          margin-top: 2px;
+          margin-left: 2px;
+          width: 1010px;
+          height: 488px;
+          background-color: rgba(128, 128, 128, 0.9); /* Gray with 90% opacity */
+          border: 1px;
+          border-radius: 10px;
+          display: block; /* Visible initially */
+          pointer-events: none; /* Overlay won't interfere with form below */
+      }           
+      div {
+          display: flex;
+          flex-direction: column;
+      }        
+      label {
+          font-weight: bold;
+      }        
+      input, select, textarea {
+          box-sizing: border-box;            
+      }
+      table {
+          width: 80%;
+          border-collapse: collapse;
+          margin-top: 5px;
+          margin-left: 10px;
+      }        
+      td {
+          padding: 3px;
+          text-align: left;
+      }
+      th {
+          height: 30px;
+          text-align: left;
+      }
+      #lastRowNumberDisplay {
+        width: 25px;
+        display: inline-block;
+        overflow: hidden;
+        text-overflow: ellipsis;
+      }        
+      .island-dropdown {width: 113px;height: 25px;}
+      .group-input {width: 156px;height: 25px;}
+      .permid-input {width: 128px;height: 25px; background-color: #fffec5; color: red;}
+      .sz-input {width: 50px;height: 25px;text-transform: uppercase;}
+      .sx-input {width: 116px;height: 25px;}
+      .tagged-dropdown {width: 116px;height: 25px;}
+      .dead-dropdown {width: 75px;height: 25px;}
+      .comment-textarea {height: 50px; width: 800px;}
+      .lefttag-input {width: 116px;height: 25px;}
+      .ltresight-input {width: 150px;height: 25px;}
+      .ltconddorsal-input {width: 150px;height: 25px;}
+      .ltcondventral-input {width: 150px;height: 25px;}
+      .righttag-input {width: 116px;height: 25px;}
+      .rtresight-input {width: 150px;height: 25px;}
+      .rtconddorsal-input {width: 150px;height: 25px;}
+      .rtcondventral-input {width: 150px;height: 25px;}
+      .item-column {width: 12px;}
+      .number-column { width: 111px; }
+      .mark-column { width: 200px; }
+      .location1-column { width: 100px; }
+      .location1a-column { width: 75px; }
+      .site-column { width: 75px; }
+      .number-dropdown {width: 105px; height: 25px;}
+      .mark-dropdown {width: 235px; height: 25px;}
+      .location1-dropdown {width: 188px; height: 25px;}
+      .location1a-dropdown {width: 188px; height: 25px;}
+      .site-dropdown {width: 235px; height: 25px;}
+  </style>
+  <script>
+    //sets focus to search input box
+    window.onload = function() {
+      var searchInput = document.getElementById('permIdSearch');
+      if (searchInput) {
+        searchInput.focus();
+      } else {
+        console.error('Search input box not found');
+      }
+    };
+
+    // Function to populate dropdowns
+    function populateDropdowns() {
+    // Loop through the rows and columns to populate dropdowns
+      for (let i = 1; i <= 7; i++) {
+        populateDropdown(`${i}number`, "A");
+        populateDropdown(`${i}mark`, "B");
+        populateDropdown(`${i}location1`, "C");
+        populateDropdown(`${i}location1a`, "D");
+        populateDropdown(`${i}site`, "E");
+      }
+    }
+    document.addEventListener("DOMContentLoaded", populateDropdowns);    // Event listener for DOMContentLoaded
+    // Function to call server-side and populate a specific dropdown
+      function populateDropdown(dropdownId, column) {
+        google.script.run.withSuccessHandler(function(values) {
+          var dropdown = document.getElementById(dropdownId);
+          dropdown.innerHTML = ''; // Clear existing options
+          values.forEach(function(value) {
+            var option = document.createElement("option");
+            option.textContent = value;
+            option.value = value;
+            dropdown.appendChild(option);
+          });
+        }).GetDropDownArray(column);
+      }
+
+    // Event listener for DOMContentLoaded
+    document.addEventListener("DOMContentLoaded", populateDropdowns);
+  </script>
+</head>
+<body>
+  <div class="master-container">
+    <div class="button-container">
+        <button class="custom-button" id="deleteButton">Delete</button>
+        <button class="custom-button" id="searchbutton">Search</button>
+        <input class="custom-button" type="text" id="permIdSearch" placeholder="   PermId">
+        <label for="rowLabel">Row: </label>
+      <span id="lastRowNumberDisplay"></span>
+    </div>
+    <form id="frmEditRecord">  
+        <div class="form-container"> 
+          <div id="form-overlay"></div>           
+            <!-- Island Group PermId Sz Sz Tagged Table...................................... -->
+            <table>
+                <tbody>
+                    <tr>
+                        <td>
+                            <div>
+                                <label>Island</label>
+                                <select class="island-dropdown" id="island">
+                                  <option value=" "></option>
+                                  <option value="Hawaii">Hawaii</option>
+                                  <option value="Maui">Maui</option>
+                                  <option value="Lanai">Lanai</option>
+                                  <option value="Moloka'i">Moloka'i</option>
+                                  <option value="O'hau">O'hau</option>
+                                  <option value="Kauai">Kauai</option>
+                                </select>
+                            </div>
+                        </td>
+                        <td>
+                            <div>
+                                <label>Group</label>
+                                <input class="group-input" id="group">
+                            </div>
+                        </td>
+                        <td>
+                            <div>
+                                <label>PermId</label>
+                                <input class="permid-input" id="permid">
+                            </div>
+                        </td>
+                        <td>
+                            <div>
+                                <label>Sz</label>
+                                <input class="sz-input" id= "sz">
+                            </div>
+                        </td>
+                        <td>
+                            <div>
+                                <label>Sx</label>
+                                <select class="sx-input" id= "sx">
+                                  <option value=" "></option>
+                                  <option value="Male">Male</option>
+                                  <option value="Female">Female</option>
+                                  <option value="Unknown">Unknown</option>
+                                </select>
+                            </div>
+                        </td>
+                        <td>
+                            <div>
+                                <label>Tagged</label>
+                                <select class="tagged-dropdown" id= "tagged">
+                                  <option value=" "></option>
+                                  <option value="Tag">Tag</option>
+                                </select>
+                            </div>
+                        </td>
+                        <td>
+                            <div>
+                                <label>Dead</label>
+                                <select class="dead-dropdown" id= "dead">
+                                  <option value=" "></option>
+                                  <option value="Dead">Dead</option>
+                                </select>
+                            </div>
+                        </td>
+                    </tr>
+                </tbody>
+            </table>    
+
+            <!-- Tag / Comment Table.................................................. -->
+            <table>
+                <tbody>
+                    <tr>
+                        <td>
+                            <div>
+                                <label>Left Tag</label>
+                                <input class="lefttag-input" id="lefttag">
+                            </div>
+                        </td>
+                        <td>
+                            <div>
+                                <label>Left Tag Resight Date</label>
+                                <input class="ltresight-input" id="ltresight">
+                            </div>
+                        </td>
+                        <td>
+                            <div>
+                                <label>Left Tag Condition Dorsal</label>
+                                <input class="ltconddorsal-input" id="ltconddorsal">
+                            </div>
+                        </td>
+                        <td>
+                            <div>
+                                <label>Left Tag Condition Ventral</label>
+                                <input class="ltcondventral-input" id="ltcondventral">
+                            </div>
+                        </td>
+                    </tr>
+                    <tr>
+                        <td>
+                            <div>
+                                <label>Right Tag</label>
+                                <input class="righttag-input" id="righttag">
+                            </div>
+                        </td>
+                        <td>
+                            <div>
+                                <label>Right Tag Resight Date</label>
+                                <input class="rtresight-input" id="rtresight">
+                            </div>
+                        </td>
+                        <td>
+                            <div>
+                                <label>Right Tag Condition Dorsal</label>
+                                <input class="rtconddorsal-input" id="rtconddorsal">
+                            </div>
+                        </td>
+                        <td>
+                            <div>
+                                <label>Right Tag Condition Ventral</label>
+                                <input class="rtcondventral-input" id="rtcondventral">
+                            </div>
+                        </td>
+                    </tr>
+                    <tr>
+                        <td colspan="4">
+                            <div>
+                                <label for="comment">Comment</label>
+                                <textarea class="comment-textarea" id="comment"></textarea>
+                            </div>
+                        </td>
+                    </tr>
+                </tbody>
+            </table>
+            
+            <!-- Identifying Marks Table.................................................. -->
+            <table>
+                <thead>
+                    <tr>
+                        <th class="item-column">#</th>
+                        <th class="number-column">Number</th>
+                        <th class="mark-column">Mark</th>
+                        <th class="location1-column">Location1</th>
+                        <th class="location1a-column">Location1a</th>
+                        <th class="site-column">Site</th>
+                    </tr>
+                </thead>
+                <tbody>
+                    <tr>
+                        <td>1</td>
+                        <td><select class="number-dropdown" id="1number"></select></td>
+                        <td><select class="mark-dropdown" id="1mark"></select></td>
+                        <td><select class="location1-dropdown" id="1location1"></select></td>
+                        <td><select class="location1a-dropdown" id="1location1a"></select></td>
+                        <td><select class="site-dropdown" id="1site"></select></td>
+                    </tr>
+                    <tr>
+                        <td>2</td>
+                        <td><select class="number-dropdown" id="2number"></select></td>
+                        <td><select class="mark-dropdown" id="2mark"></select></td>
+                        <td><select class="location1-dropdown" id="2location1"></select></td>
+                        <td><select class="location1a-dropdown" id="2location1a"></select></td>
+                        <td><select class="site-dropdown" id="2site"></select></td>
+                    </tr>
+                    <tr>
+                        <td>3</td>
+                        <td><select class="number-dropdown" id="3number"></select></td>
+                        <td><select class="mark-dropdown" id="3mark"></select></td>
+                        <td><select class="location1-dropdown" id="3location1"></select></td>
+                        <td><select class="location1a-dropdown" id="3location1a"></select></td>
+                        <td><select class="site-dropdown" id="3site"></select></td>   
+                    </tr>
+                    <tr>
+                        <td>4</td>
+                        <td><select class="number-dropdown" id="4number"></select></td>
+                        <td><select class="mark-dropdown" id="4mark"></select></td>
+                        <td><select class="location1-dropdown" id="4location1"></select></td>
+                        <td><select class="location1a-dropdown" id="4location1a"></select></td>
+                        <td><select class="site-dropdown" id="4site"></select></td>  
+                    </tr>
+                    <tr>
+                        <td>5</td>
+                        <td><select class="number-dropdown" id="5number"></select></td>
+                        <td><select class="mark-dropdown" id="5mark"></select></td>
+                        <td><select class="location1-dropdown" id="5location1"></select></td>
+                        <td><select class="location1a-dropdown" id="5location1a"></select></td>
+                        <td><select class="site-dropdown" id="5site"></select></td> 
+                    </tr>
+                    <tr>
+                        <td>6</td>
+                        <td><select class="number-dropdown" id="6number"></select></td>
+                        <td><select class="mark-dropdown" id="6mark"></select></td>
+                        <td><select class="location1-dropdown" id="6location1"></select></td>
+                        <td><select class="location1a-dropdown" id="6location1a"></select></td>
+                        <td><select class="site-dropdown" id="6site"></select></td> 
+                    </tr>
+                    <tr>
+                        <td>7</td>
+                        <td><select class="number-dropdown" id="7number"></select></td>
+                        <td><select class="mark-dropdown" id="7mark"></select></td>
+                        <td><select class="location1-dropdown" id="7location1"></select></td>
+                        <td><select class="location1a-dropdown" id="7location1a"></select></td>
+                        <td><select class="site-dropdown" id="7site"></select></td>
+                    </tr>
+                </tbody>
+            </table>
+        </div>
+        <input type="hidden" id="lastRowNumber" value="">
+    </form>
+    <div id="log"></div> <!-- Added for logging in the HTML -->
+    <div id="customMatchesConfirmDialog" class="modal" style="display:none;">
+      <div class="modal-content">
+        <p id="confirmMessage"></p>
+        <span id="confirmClose" class="close">&times;</span> <!-- close button -->
+      </div>
+    </div>
+    <div id="customConfirmDialog" class="modal" style="display:none;">
+      <div class="modal-content">
+        <p id="confirmDeleteMessage"></p>
+        <button id="confirmYes">Yes</button>
+        <button id="confirmNo">No</button>
+        <span id="confirmClose" class="close">&times;</span> <!-- close button -->
+      </div>
+    </div>
+    <div id="recordNotFoundDialog" class="modal" style="display:none;">
+      <div class="modal-content">
+        <p id="recordNotFoundMessage"></p>
+        <span id="confirmClose" class="close">&times;</span> <!-- close button -->
+      </div>
+    </div>
+  </div>
+  <script>
+    function toggleButtonInversion(button) {
+      button.classList.add('inverse');
+      setTimeout(() => {
+        button.classList.remove('inverse');
+      }, 300); // Duration of the color inversion effect
+    }
+    document.addEventListener("DOMContentLoaded", function() {
+      console.log('DOM fully loaded and parsed');
+      const searchButton = document.getElementById("searchbutton");
+      const deleteButton = document.getElementById("deleteButton");
+
+      if (searchButton) {
+          searchButton.addEventListener("click", function() {
+              console.log('Search button clicked!');
+              toggleButtonInversion(searchButton);
+              const permId = document.getElementById("permIdSearch").value;
+              console.log('Perm ID:', permId);
+          google.script.run
+          .withSuccessHandler(function(response) {
+              console.log('Search response received:', response);
+              if (response.singleMatch) {
+                console.log('Single match found, populating form');
+                populateForm(response.data);
+              } else if (response.multipleMatches) {
+                console.log('Multiple matches found, handling');
+                handleMultipleMatches(response.matches);
+              } else if (response.error) {
+                console.error('Error from server:', response.error);
+                showRecordNotFoundErrorModal(`Error: ${response.error}`)
+                  .then(() => {
+                    // Focus on the search input after closing the error modal
+                    document.getElementById('permIdSearch').focus();
+                  })
+                  .catch(error => {
+                    console.error('Error showing modal:', error);
+                  });
+              }
+          })
+          .withFailureHandler(function(error) {
+            console.error('Failure:', error);
+            showRecordNotFoundErrorModal(`An error occurred: ${error.message || error}`)
+              .then(() => {
+                console.log('Error modal closed');
+                document.getElementById('permIdSearch').focus();
+              })
+              .catch(error => {
+                console.error('Error showing modal:', error);
+              });
+          })
+          .GetRecordData(permId);
+        });
+      }
+
+      if (deleteButton) {
+          deleteButton.addEventListener("click", function() {
+              console.log('Delete button clicked!');
+              toggleButtonInversion(deleteButton); 
+              
+              // Fetch rowNumber correctly from the hidden field
+              const rowNumber = document.getElementById('lastRowNumberDisplay').value;
+              console.log('Row number:', rowNumber);
+              const permId = document.getElementById("permIdSearch").value;
+              console.log('PermId:', permId);
+
+              if (!rowNumber) {
+                  console.error('Row number is undefined. Deletion cannot proceed.');
+                  alert('No row selected for deletion.');
+                  return;
+              }
+              
+              customConfirm("Are you sure you want to <b>DELETE</b> this record?").then((result) => {
+                  if (result) {
+                      console.log('Deletion confirmed');
+                      google.script.run
+                          .withSuccessHandler(function(response) {
+                              console.log('Delete response from server:', response);
+                              displayDeleteSuccessMessage(rowNumber);
+                          })
+                          .withFailureHandler(function(error) {
+                              console.error('Delete Error:', error);
+                              document.getElementById('output').innerHTML = 'Error deleting record: ' + error.message;
+                          })
+                          .DeleteRecord(rowNumber, permId); // Pass the correct rowNumber and permId
+                          console.log('DeleteRecord function called');
+                  } else {
+                      console.log('Deletion cancelled');
+                  }
+              }).catch(error => {
+                  console.error('Error in customConfirm:', error);
+              });
+          });
+      } else {
+          console.error('Delete button not found');
+      }
+
+    });
+
+    function handleMultipleMatches(matches) {
+      showCustomConfirmDialog(matches)
+        .then(selectedIndex => {
+          console.log('Selected index:', selectedIndex);
+          populateForm(matches[selectedIndex]);
+        })
+        .catch(error => {
+          console.error('Error or dialog closed:', error);
+        });
+    }
+
+    function createMatchesMessage(matches) {
+      console.log('createMatchesMessage called');
+      let message = "Multiple matches found. Please select one to edit:<br><br>";
+      matches.forEach((match, index) => {
+        message += `<button onclick="resolveCustomConfirm(${index})">${index + 1}. ${match.permid}</button><br>`;
+      });
+      return message;
+    }
+
+    function showCustomConfirmDialog(matches) {
+      console.log('showCustomConfirmDialog called');
+      return new Promise((resolve, reject) => {
+        const dialog = document.getElementById('customMatchesConfirmDialog');
+        const confirmMessage = document.getElementById('confirmMessage');
+        const closeButton = document.getElementById('confirmClose'); 
+
+        if (!dialog || !confirmMessage) {
+
+          reject(new Error('Custom confirm dialog elements not found'));
+          return;
+        }
+
+        confirmMessage.innerHTML = 'Multiple matching records found. Please select one:<br><br>';
+
+        matches.forEach((match, index) => {
+          const button = document.createElement('button');
+          button.textContent = `${index + 1}: ${match.permid}`;
+          button.className = 'selectButton';
+          button.dataset.index = index;
+          confirmMessage.appendChild(button);
+          confirmMessage.innerHTML += '<br>';
+        });
+
+        dialog.style.display = 'block';
+
+        const selectButtons = document.querySelectorAll('.selectButton');
+        selectButtons.forEach(button => {
+          button.addEventListener('click', function() {
+            // Add blink effect on click
+            this.classList.add('blink-on-click');
+            
+            // Delay closing the modal to allow the blink animation to be visible
+            setTimeout(() => {
+              const selectedIndex = this.dataset.index;
+              dialog.style.display = 'none';
+              resolve(selectedIndex); // Resolve with the index of the selected record
+            }, 500); // Match this duration with the blink animation duration
+          });
+        });
+
+        closeButton.addEventListener('click', function() {
+          dialog.style.display = 'none';
+          reject(new Error('Dialog closed'));
+        });
+      });
+    }
+
+    function closeModal() {
+      const dialog = document.getElementById('customConfirmDialog');
+      dialog.style.display = 'none';
+    }
+
+    function showRecordNotFoundErrorModal(message) {
+      console.log('Attempting to show record not found error modal');
+      return new Promise((resolve, reject) => {
+        const dialog = document.getElementById('recordNotFoundDialog');
+        const errorMessage = document.getElementById('recordNotFoundMessage');
+
+        console.log('Dialog elements:', { dialog, errorMessage });
+
+        if (!dialog || !errorMessage) {
+          console.error('Record not found dialog elements not found');
+          reject(new Error('Record not found dialog elements not found'));
+          return;
+        }
+
+        errorMessage.innerHTML = `${message}<br><br>`;
+
+        const okButton = document.createElement('button');
+        okButton.textContent = 'OK';
+        okButton.className = 'selectButton';
+        
+        const buttonContainer = document.createElement('div');
+        buttonContainer.className = 'button-container';
+        buttonContainer.appendChild(okButton);
+        errorMessage.appendChild(buttonContainer);
+
+        console.log('Setting dialog display to block');
+        dialog.style.display = 'block';
+
+        okButton.addEventListener('click', function() {
+          console.log('OK button clicked');
+          this.classList.add('blink-on-click');
+          
+          setTimeout(() => {
+            dialog.style.display = 'none';
+            resolve();
+          }, 500);
+        });
+      });
+    }
+    
+    function showErrorModal(message) {
+      console.log('Attempting to show error modal');
+      return new Promise((resolve, reject) => {
+        const dialog = document.getElementById('customConfirmDialog');
+        const confirmMessage = document.getElementById('confirmMessage');
+
+        console.log('Dialog elements:', { dialog, confirmMessage });
+
+        if (!dialog || !confirmMessage) {
+          console.error('Custom confirm dialog elements not found');
+          reject(new Error('Custom confirm dialog elements not found'));
+          return;
+        }
+
+        confirmMessage.innerHTML = `${message}<br><br>`;
+
+        const okButton = document.createElement('button');
+        okButton.textContent = 'OK';
+        okButton.className = 'selectButton';
+        
+        const buttonContainer = document.createElement('div');
+        buttonContainer.className = 'button-container';
+        buttonContainer.appendChild(okButton);
+        confirmMessage.appendChild(buttonContainer);
+
+        console.log('Setting dialog display to block');
+        dialog.style.display = 'block';
+
+        okButton.addEventListener('click', function() {
+          console.log('OK button clicked');
+          this.classList.add('blink-on-click');
+          
+          setTimeout(() => {
+            dialog.style.display = 'none';
+            resolve();
+          }, 500);
+        });
+      });
+    }
+
+    function customConfirm(message) {
+      console.log('customConfirm(message) initiated');
+        return new Promise((resolve, reject) => {
+            const dialog = document.getElementById('customConfirmDialog');
+            const confirmMessage = document.getElementById('confirmDeleteMessage');
+            const yesButton = document.getElementById('confirmYes');
+            const noButton = document.getElementById('confirmNo');
+
+            if (!dialog || !confirmDeleteMessage || !yesButton || !noButton) {
+                reject(new Error('Custom confirm dialog elements not found'));
+                return;
+            }
+
+            confirmDeleteMessage.innerHTML = message;
+            dialog.style.display = 'block';
+
+            yesButton.onclick = () => {
+                dialog.style.display = 'none';
+                resolve(true);
+            };
+
+            noButton.onclick = () => {
+                dialog.style.display = 'none';
+                resolve(false);
+            };
+        });
+    }
+
+    function displayDeleteSuccessMessage(rowNumber) {
+        console.log("displayDeleteSuccessMessage rowNumber = " + rowNumber);
+
+        const deleteButton = document.getElementById('deleteButton');
+        if (deleteButton) {
+            deleteButton.disabled = true;
+            deleteButton.textContent = 'Record Successfully Deleted';
+            deleteButton.style.backgroundColor = 'green';
+            deleteButton.style.color = 'white';
+            console.log('Record successfully deleted');
+
+            // Close the window after displaying the success message
+            setTimeout(() => {
+                google.script.host.close();
+            }, 2000); // Delay to display success message
+        } else {
+            console.error('Delete button not found in displayDeleteSuccessMessage');
+        }
+    }
+
+    function populateForm(record) {
+      console.log("populateform fxn: Record received:", record);
+      document.getElementById('form-overlay').style.display = 'none';
+      
+      var permidInput = document.getElementById('permid-input');
+      lastRowNumberDisplay.textContent = record.rowNumber;
+      
+      if (record && record.error) {
+        console.error("Error retrieving record:", record.error); 
+        alert("Error retrieving record: " + record.error);
+      } else if (record) {
+        document.getElementById('lastRowNumberDisplay').value = record.rowNumber || '';
+        document.getElementById('island').value = record.island || '';
+        document.getElementById('group').value = record.group || '';
+        document.getElementById('permid').value = record.permid || '';
+        document.getElementById('sz').value = record.sz || '';
+        document.getElementById('sx').value = record.sx || '';      
+        document.getElementById('tagged').value = record.tagged || '';
+        document.getElementById('lefttag').value = record.lefttag || '';
+        document.getElementById('ltresight').value = record.ltresight || '';
+        document.getElementById('ltconddorsal').value = record.ltconddorsal || '';
+        document.getElementById('ltcondventral').value = record.ltcondventral || '';
+        document.getElementById('righttag').value = record.righttag || '';      
+        document.getElementById('rtresight').value = record.rtresight || '';
+        document.getElementById('rtconddorsal').value = record.rtconddorsal || '';
+        document.getElementById('rtcondventral').value = record.rtcondventral || '';
+        document.getElementById('comment').value = record.comment || '';
+        document.getElementById('1number').value = record.number1 || '';
+        document.getElementById('1mark').value = record.mark1 || '';      
+        document.getElementById('1location1').value = record.location1_1 || '';
+        document.getElementById('1location1a').value = record.location1a_1 || '';
+        document.getElementById('1site').value = record.site1 || '';
+        document.getElementById('2number').value = record.number2 || '';
+        document.getElementById('2mark').value = record.mark2 || '';      
+        document.getElementById('2location1').value = record.location1_2 || '';
+        document.getElementById('2location1a').value = record.location1a_2 || '';
+        document.getElementById('2site').value = record.site2 || '';
+        document.getElementById('3number').value = record.number3 || '';
+        document.getElementById('3mark').value = record.mark3 || '';      
+        document.getElementById('3location1').value = record.location1_3 || '';
+        document.getElementById('3location1a').value = record.location1a_3 || '';
+        document.getElementById('3site').value = record.site3 || '';
+        document.getElementById('4number').value = record.number4 || '';
+        document.getElementById('4mark').value = record.mark4 || '';      
+        document.getElementById('4location1').value = record.location1_4 || '';
+        document.getElementById('4location1a').value = record.location1a_4 || '';
+        document.getElementById('4site').value = record.site4 || '';
+        document.getElementById('5number').value = record.number5 || '';
+        document.getElementById('5mark').value = record.mark5 || '';      
+        document.getElementById('5location1').value = record.location1_5 || '';
+        document.getElementById('5location1a').value = record.location1a_5 || '';
+        document.getElementById('5site').value = record.site5 || '';
+        document.getElementById('6number').value = record.number6 || '';
+        document.getElementById('6mark').value = record.mark6 || '';      
+        document.getElementById('6location1').value = record.location1_6 || '';
+        document.getElementById('6location1a').value = record.location1a_6 || '';
+        document.getElementById('6site').value = record.site6 || '';
+        document.getElementById('7number').value = record.number7 || '';
+        document.getElementById('7mark').value = record.mark7 || '';      
+        document.getElementById('7location1').value = record.location1_7 || '';
+        document.getElementById('7location1a').value = record.location1a_7 || '';
+        document.getElementById('7site').value = record.site7 || ''; 
+        document.getElementById('dead').value = record.dead || '';
+      } else {
+        console.error("Unexpected format of record:", record);
+        alert("Unexpected format of record: " + record);
+      }
+    }
+  </script>
+</body>
+</html>

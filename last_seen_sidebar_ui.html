@@ -1,0 +1,73 @@
+<!-- Sidebar UI for Last Seen by ID -->
+<!DOCTYPE html>
+<html>
+  <head>
+    <base target="_top">
+    <style>
+      body {
+        font-family: Arial, sans-serif;
+        padding: 12px;
+      }
+
+      h2 {
+        margin-top: 0;
+      }
+
+      input, button {
+        width: 100%;
+        padding: 8px;
+        margin-top: 6px;
+        font-size: 14px;
+      }
+
+      #results {
+        margin-top: 12px;
+        white-space: pre-wrap;
+        font-family: Consolas, monospace;
+        font-size: 13px;
+        background: #f8fafc;
+        padding: 8px;
+        border-radius: 6px;
+        max-height: 500px;
+        overflow-y: auto;
+      }
+
+      .loading {
+        color: #666;
+        font-style: italic;
+      }
+    </style>
+  </head>
+
+  <body>
+    <h2>Last Seen</h2>
+
+    <input id="sealId" placeholder="Enter PermID or TempID" />
+    <button onclick="search()">Search</button>
+
+    <div id="results"></div>
+
+    <script>
+      function search() {
+        const id = document.getElementById('sealId').value.trim();
+        const results = document.getElementById('results');
+
+        if (!id) {
+          results.textContent = 'Please enter an ID.';
+          return;
+        }
+
+        results.innerHTML = '<span class="loading">Searching...</span>';
+
+        google.script.run
+          .withSuccessHandler(text => {
+            results.textContent = text;
+          })
+          .withFailureHandler(err => {
+            results.textContent = 'Error: ' + err.message;
+          })
+          .sidebarGetLastSeenByID(id);
+      }
+    </script>
+  </body>
+</html>

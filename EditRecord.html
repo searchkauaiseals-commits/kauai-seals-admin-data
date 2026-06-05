@@ -1,0 +1,1166 @@
+<!DOCTYPE html>
+<html>
+<head>
+  <meta charset="UTF-8">
+  <title>Edit Record</title>
+    <style>
+      .submit-button {
+        display: flex;
+        justify-content: flex-start; /* Aligns items to the start of the container */
+        align-items: center;
+      }      
+      .custom-button {
+        background-color: rgb(247, 243, 243);
+        color: black;
+        font-size: 16px;
+        padding: 5px;
+        cursor: pointer;
+        border: 1px solid black;
+        border-radius: 4px;
+        flex-grow: 1; /* Allows button to grow */
+        min-width: 80px;
+        margin-right: 10px; /* Adds space between buttons */
+        margin-top: 0px;
+        position: relative;
+        top: -2px; /* Adjusts the vertical position */
+      }
+      .custom-button:first-child {
+        margin-right: 50px;
+        background-color: rgb(211,211,211);
+      }
+      .custom-button.inverse {
+        background-color: black;
+        color: rgb(247, 243, 243);
+      }
+      .button-inverse {
+        background-color: currentColor;
+        color: inherit;
+      }
+      #submitbutton.inverse {
+        background-color: white;
+        color: rgb(0,128,0);
+      }
+      #permIdSearch {
+        width: 300px;
+        height: 30px;
+        background-color: #fffec5;
+        color: red;
+      }
+      #newGroupInput {
+        width: 50%;
+        padding: 5px;
+        margin-top: 5px;
+      }      
+      .custom-button:hover {
+        background-color: rgb(255,255,255); 
+      }
+      .modal {
+        display: none;
+        position: fixed;
+        z-index: 1;
+        left: 0;
+        top: 0;
+        width: 100%;
+        height: 100%;
+        overflow: auto;
+        background-color: rgba(0,0,0,0.4);
+      }
+      .modal-content {
+        background-color: #fefefe;
+        margin: 15% auto;
+        padding: 20px;
+        border: 1px solid #888;
+        border-radius: 6px;
+        width: 35%;
+        max-width: 500px;
+        text-align: center;
+        border: 2px solid black;
+        border-radius: 5px;
+      }
+      button {
+        margin: 10px;
+        padding: 5px 10px;
+        border: 1px solid #888;
+        border-radius: 6px;
+      }
+      .selectButton {
+        display: block;
+        margin: 10px;
+        border: none;
+        border-radius: 5px;
+        font-size: 16px;
+        cursor: pointer;
+      }
+      .selectButton:hover {
+        background-color: #45a049;
+      }
+      .close-button {
+        position: absolute;
+        top: 10px;
+        right: 10px;
+        font-size: 18px;
+        cursor: pointer;
+      }
+      .close {
+        font-size: 36px;
+        font-weight: bold;
+        cursor: pointer;
+        position: absolute;
+        right: 10px;
+        top: 10px;
+      }
+      .close:hover {
+        color: red;
+      }
+      #customConfirmDialog {
+        display: none;
+        position: fixed;
+        z-index: 1000;
+        left: 0;
+        top: 0;
+        width: 100%;
+        height: 100%;
+        overflow: auto;
+        background-color: rgba(0,0,0,0.4);
+      }
+      /* CSS for blink effect */
+      @keyframes blink {
+        0%, 100% { background-color: #f0f0f0; } /* Original color */
+        50% { background-color: #fffec5; } /* Blink color */
+      }
+      .blink-on-click {
+        animation: blink 0.5s ease-in-out;
+      }
+      .master-container {
+        width: 1030px;
+        height: 544px;
+        background-color: rgb(214,214,214);
+        display: flex;
+        justify-content: flex-start; /* Aligns items to the top */
+        align-items: flex-start; /* Aligns items to the left */
+        box-sizing: border-box;
+        border-radius: 10px;
+        padding: 10px; /* Optional padding */
+      }
+      .button-container {
+        display: flex;
+        flex-direction: row;
+        justify-content: center;
+        margin-top: 0px;
+      }
+      #confirmmessage {
+        text-align: center;
+      }
+      #submitbutton {
+        background-color: rgb(0,128,0);
+        color: white;
+      }
+      .form-container {
+        width: 1015px;
+        height: 492px;
+        margin-top: -5px;
+        margin-left: -3px;
+        background-color: rgb(247,243,243);
+        border: 1px;
+        border-radius: 10px;
+      }
+      #form-overlay {
+        position: absolute;
+        margin-top: 2px;
+        margin-left: 2px;
+        width: 1010px;
+        height: 488px;
+        background-color: rgba(128, 128, 128, 0.9); /* Gray with 90% opacity */
+        border: 1px;
+        border-radius: 10px;
+        display: block; /* Visible initially */
+        pointer-events: none; /* Overlay won't interfere with form below */
+      }
+      div {
+        display: flex;
+        flex-direction: column;
+      }        
+      label {
+        font-weight: bold;
+      }        
+      input, select, textarea {
+        box-sizing: border-box;            
+      }
+      table {
+        width: 80%;
+        border-collapse: collapse;
+        margin-top: 5px;
+        margin-left: 10px;
+      }        
+      td {
+        padding: 3px;
+        text-align: left;
+      }
+      th {
+        height: 30px;
+        text-align: left;
+      }
+              
+      .island-dropdown {width: 113px;height: 25px;}
+      .group-input {width: 156px;height: 25px;}
+      .permid-input {width: 128px;height: 25px; background-color: #fffec5; color: red;}
+      .sz-input {width: 50px;height: 25px;text-transform: uppercase;}
+      .sx-input {width: 116px;height: 25px;}
+      .tagged-dropdown {width: 116px;height: 25px;}
+      .dead-dropdown {width: 75px;height: 25px; background-color: #fffec5; color: red;}
+      .comment-textarea {height: 50px; width: 800px;}
+      .lefttag-input {width: 116px;height: 25px;}
+      .ltresight-input {width: 150px;height: 25px;}
+      .ltconddorsal-input {width: 150px;height: 25px;}
+      .ltcondventral-input {width: 150px;height: 25px;}
+      .righttag-input {width: 116px;height: 25px;}
+      .rtresight-input {width: 150px;height: 25px;}
+      .rtconddorsal-input {width: 150px;height: 25px;}
+      .rtcondventral-input {width: 150px;height: 25px;}
+      .item-column {width: 12px;}
+      .number-column { width: 111px; }
+      .mark-column { width: 200px; }
+      .location1-column { width: 100px; }
+      .location1a-column { width: 75px; }
+      .site-column { width: 75px; }
+      .number-dropdown {width: 105px; height: 25px;}
+      .mark-dropdown {width: 235px; height: 25px;}
+      .location1-dropdown {width: 188px; height: 25px;}
+      .location1a-dropdown {width: 188px; height: 25px;}
+      .site-dropdown {width: 235px; height: 25px;}
+      #lastRowNumberDisplay {
+        width: 25px;
+        display: inline-block;
+        overflow: hidden;
+        text-overflow: ellipsis;
+      }  
+  </style>
+  <script>
+    //sets focus to search input box
+    window.onload = function() {
+      var searchInput = document.getElementById('permIdSearch');
+      if (searchInput) {
+        searchInput.focus();
+      } else {
+        console.error('Search input box not found');
+      }
+    };
+
+    // Function to populate dropdowns
+    function populateDropdowns() {
+    // Loop through the rows and columns to populate dropdowns
+      for (let i = 1; i <= 7; i++) {
+        populateDropdown(`${i}number`, "A");
+        populateDropdown(`${i}mark`, "B");
+        populateDropdown(`${i}location1`, "C");
+        populateDropdown(`${i}location1a`, "D");
+        populateDropdown(`${i}site`, "E");
+      }
+    }
+    document.addEventListener("DOMContentLoaded", populateDropdowns);    // Event listener for DOMContentLoaded
+    // Function to call server-side and populate a specific dropdown
+      function populateDropdown(dropdownId, column) {
+        google.script.run.withSuccessHandler(function(values) {
+          var dropdown = document.getElementById(dropdownId);
+          dropdown.innerHTML = ''; // Clear existing options
+          values.forEach(function(value) {
+            var option = document.createElement("option");
+            option.textContent = value;
+            option.value = value;
+            dropdown.appendChild(option);
+          });
+        }).GetDropDownArray(column);
+      }
+    // Event listener for DOMContentLoaded
+    //document.addEventListener("DOMContentLoaded", populateDropdowns);
+  </script>
+</head>
+<body>
+  <div class="master-container">
+    <div class="button-container">
+        <button class="custom-button" id="submitbutton">Submit</button>
+        <button class="custom-button" id="searchbutton">Search</button>
+        <input class="custom-button" type="text" id="permIdSearch" placeholder="   PermId">
+        <label for="rowLabel">Row: </label>
+      <span id="lastRowNumberDisplay"></span>      
+    </div>
+    <form id="frmEditRecord">  
+        <div class="form-container">
+          <!-- Gray overlay to cover the form -->
+          <div id="form-overlay"></div>            
+            <!-- Island Group PermId Sz Sz Tagged Dead Table...................................... -->
+            <table>
+                <tbody>
+                    <tr>
+                        <td>
+                            <div>
+                                <label>Island</label>
+                                <select class="island-dropdown" id="island">
+                                  <option value=" "></option>
+                                  <option value="Hawaii">Hawaii</option>
+                                  <option value="Maui">Maui</option>
+                                  <option value="Lanai">Lanai</option>
+                                  <option value="Moloka'i">Moloka'i</option>
+                                  <option value="O'hau">O'hau</option>
+                                  <option value="Kauai">Kauai</option>
+                                </select>
+                            </div>
+                        </td>
+                        <td>
+                            <div>
+                                <label for="group">Group</label>
+                                <select class="group-input" id="group">
+                                    <option value=" "></option>
+                                    <option value="Non-Cohort Tags">Non-Cohort Tags</option>
+                                    <option value="Untagged">Untagged</option>
+                                    <option value="Temp IDs">Temp IDs</option>
+                                    <option value="U Cohort 2025">U Cohort 2025</option>
+                                    <option value="V Cohort 2026">V Cohort 2026</option>
+                                    <option value="X Cohort 2027">X Cohort 2027</option>
+                                    <option value="add_new">Add New...</option>
+                                </select>
+                                <input type="text" id="newGroupInput" style="display: none;" placeholder="Enter new group">
+                            </div>
+                        </td>
+                        <td>
+                            <div>
+                                <label>PermId</label>
+                                <input class="permid-input" id="permid">
+                            </div>
+                        </td>
+                        <td>
+                            <div>
+                                <label>Sz</label>
+                                <input class="sz-input" id= "sz">
+                            </div>
+                        </td>
+                        <td>
+                            <div>
+                                <label>Sx</label>
+                                <select class="sx-input" id= "sx">
+                                  <option value=" "></option>
+                                  <option value="Male">Male</option>
+                                  <option value="Female">Female</option>
+                                  <option value="Unknown">Unknown</option>
+                                </select>
+                            </div>
+                        </td>
+                        <td>
+                            <div>
+                                <label>Tagged</label>
+                                <select class="tagged-dropdown" id= "tagged">
+                                  <option value=" "></option>
+                                  <option value="Tag">Tag</option>
+                                </select>
+                            </div>
+                        </td>
+                        <td>
+                            <div>
+                                <label>Dead</label>
+                                <select class="dead-dropdown" id= "dead">
+                                  <option value=" "></option>
+                                  <option value="Dead">Dead</option>
+                                </select>
+                            </div>
+                        </td>
+                    </tr>
+                </tbody>
+            </table>    
+
+            <!-- Tag / Comment Table.................................................. -->
+            <table>
+                <tbody>
+                    <tr>
+                        <td>
+                            <div>
+                                <label>Left Tag</label>
+                                <input class="lefttag-input" id="lefttag">
+                            </div>
+                        </td>
+                        <td>
+                            <div>
+                                <label>Left Tag Resight Date</label>
+                                <input class="ltresight-input" id="ltresight">
+                            </div>
+                        </td>
+                        <td>
+                            <div>
+                                <label>Left Tag Condition Dorsal</label>
+                                <input class="ltconddorsal-input" id="ltconddorsal">
+                            </div>
+                        </td>
+                        <td>
+                            <div>
+                                <label>Left Tag Condition Ventral</label>
+                                <input class="ltcondventral-input" id="ltcondventral">
+                            </div>
+                        </td>
+                    </tr>
+                    <tr>
+                        <td>
+                            <div>
+                                <label>Right Tag</label>
+                                <input class="righttag-input" id="righttag">
+                            </div>
+                        </td>
+                        <td>
+                            <div>
+                                <label>Right Tag Resight Date</label>
+                                <input class="rtresight-input" id="rtresight">
+                            </div>
+                        </td>
+                        <td>
+                            <div>
+                                <label>Right Tag Condition Dorsal</label>
+                                <input class="rtconddorsal-input" id="rtconddorsal">
+                            </div>
+                        </td>
+                        <td>
+                            <div>
+                                <label>Right Tag Condition Ventral</label>
+                                <input class="rtcondventral-input" id="rtcondventral">
+                            </div>
+                        </td>
+                    </tr>
+                    <tr>
+                        <td colspan="4">
+                            <div>
+                                <label for="comment">Comment</label>
+                                <textarea class="comment-textarea" id="comment"></textarea>
+                            </div>
+                        </td>
+                    </tr>
+                </tbody>
+            </table>
+            
+            <!-- Identifying Marks Table.................................................. -->
+            <table>
+                <thead>
+                    <tr>
+                        <th class="item-column">#</th>
+                        <th class="number-column">Number</th>
+                        <th class="mark-column">Mark</th>
+                        <th class="location1-column">Location1</th>
+                        <th class="location1a-column">Location1a</th>
+                        <th class="site-column">Site</th>
+                    </tr>
+                </thead>
+                <tbody>
+                    <tr>
+                        <td>1</td>
+                        <td><select class="number-dropdown" id="1number"></select></td>
+                        <td><select class="mark-dropdown" id="1mark"></select></td>
+                        <td><select class="location1-dropdown" id="1location1"></select></td>
+                        <td><select class="location1a-dropdown" id="1location1a"></select></td>
+                        <td><select class="site-dropdown" id="1site"></select></td>
+                    </tr>
+                    <tr>
+                        <td>2</td>
+                        <td><select class="number-dropdown" id="2number"></select></td>
+                        <td><select class="mark-dropdown" id="2mark"></select></td>
+                        <td><select class="location1-dropdown" id="2location1"></select></td>
+                        <td><select class="location1a-dropdown" id="2location1a"></select></td>
+                        <td><select class="site-dropdown" id="2site"></select></td>
+                    </tr>
+                    <tr>
+                        <td>3</td>
+                        <td><select class="number-dropdown" id="3number"></select></td>
+                        <td><select class="mark-dropdown" id="3mark"></select></td>
+                        <td><select class="location1-dropdown" id="3location1"></select></td>
+                        <td><select class="location1a-dropdown" id="3location1a"></select></td>
+                        <td><select class="site-dropdown" id="3site"></select></td>   
+                    </tr>
+                    <tr>
+                        <td>4</td>
+                        <td><select class="number-dropdown" id="4number"></select></td>
+                        <td><select class="mark-dropdown" id="4mark"></select></td>
+                        <td><select class="location1-dropdown" id="4location1"></select></td>
+                        <td><select class="location1a-dropdown" id="4location1a"></select></td>
+                        <td><select class="site-dropdown" id="4site"></select></td>  
+                    </tr>
+                    <tr>
+                        <td>5</td>
+                        <td><select class="number-dropdown" id="5number"></select></td>
+                        <td><select class="mark-dropdown" id="5mark"></select></td>
+                        <td><select class="location1-dropdown" id="5location1"></select></td>
+                        <td><select class="location1a-dropdown" id="5location1a"></select></td>
+                        <td><select class="site-dropdown" id="5site"></select></td> 
+                    </tr>
+                    <tr>
+                        <td>6</td>
+                        <td><select class="number-dropdown" id="6number"></select></td>
+                        <td><select class="mark-dropdown" id="6mark"></select></td>
+                        <td><select class="location1-dropdown" id="6location1"></select></td>
+                        <td><select class="location1a-dropdown" id="6location1a"></select></td>
+                        <td><select class="site-dropdown" id="6site"></select></td> 
+                    </tr>
+                    <tr>
+                        <td>7</td>
+                        <td><select class="number-dropdown" id="7number"></select></td>
+                        <td><select class="mark-dropdown" id="7mark"></select></td>
+                        <td><select class="location1-dropdown" id="7location1"></select></td>
+                        <td><select class="location1a-dropdown" id="7location1a"></select></td>
+                        <td><select class="site-dropdown" id="7site"></select></td>
+                    </tr>
+                </tbody>
+            </table>
+        </div>
+        <input type="hidden" id="lastRowNumber" value="">
+        <input type="hidden" id="currentPermId" value="">
+        <input type="hidden" id="editPermId" value="">
+        <input type="hidden" id="preEditGroup" value="">
+        <input type="hidden" id="editGroup" value="">
+    </form>
+
+  <div id="customConfirmDialog" class="modal" style="display:none;">
+    <div class="modal-content">
+      <span id="confirmClose" class="close">&times;</span> <!-- This is the close button -->
+      <p id="confirmMessage"></p>
+    </div>
+  </div>
+  <div id="log"></div> <!-- Added for logging in the HTML -->
+  </div>
+  </div>
+  <script>
+    // Declare global variables to store the IDs
+    let currentPermId = '';
+    let editPermId = '';
+    let preEditGroup = '';
+    let editGroup = '';  
+    
+    function toggleButtonInversion(button) {
+      button.classList.add('inverse');
+      setTimeout(() => {
+        button.classList.remove('inverse');
+      }, 300); // Duration of the color inversion effect
+    }
+    
+    document.addEventListener("DOMContentLoaded", function() {
+      console.log('DOM fully loaded and parsed'); 
+      const groupSelect = document.getElementById('group');
+      const newGroupInput = document.getElementById('newGroupInput');
+      const searchButton = document.getElementById("searchbutton");
+      const submitButton = document.getElementById("submitbutton");
+
+      google.script.run
+      .withSuccessHandler(function(permId) {
+        if (permId) {
+          console.log('Received permId:', permId);
+          document.getElementById('permIdSearch').value = permId;
+          // Trigger the search
+          performSearch(permId);
+        }
+      })
+      .getEditPermId();
+
+      groupSelect.addEventListener('change', function() {
+      if (this.value === 'add_new') {
+          this.style.display = 'none';
+          newGroupInput.style.display = 'inline-block';
+          newGroupInput.focus();
+        }
+      });
+
+      newGroupInput.addEventListener('blur', function() {
+          if (this.value.trim() === '') {
+              this.style.display = 'none';
+              groupSelect.style.display = 'inline-block';
+              groupSelect.value = ' ';
+          } else {
+              // Add the new option to the select
+              const newOption = document.createElement('option');
+              newOption.value = this.value;
+              newOption.text = this.value;
+              groupSelect.insertBefore(newOption, groupSelect.lastElementChild);
+              
+              // Select the new option
+              groupSelect.value = this.value;
+              
+              // Hide the input and show the select
+              this.style.display = 'none';
+              groupSelect.style.display = 'inline-block';
+          }
+      });
+
+      newGroupInput.addEventListener('keypress', function(e) {
+          if (e.key === 'Enter') {
+              this.blur();
+          }
+      });
+
+      function debounce(func, wait) {
+        let timeout;
+        return function executedFunction(...args) {
+          const later = () => {
+            clearTimeout(timeout);
+            func(...args);
+          };
+          clearTimeout(timeout);
+          timeout = setTimeout(later, wait);
+        };
+      }
+
+      if (searchButton) {
+        const debouncedSearch = debounce(function() {
+          const permId = document.getElementById("permIdSearch").value;
+          console.log("search button pressed");
+          performSearch(permId);
+        }, 300); // 300ms debounce time
+
+        searchButton.addEventListener("click", function() {
+          toggleButtonInversion(searchButton);
+          debouncedSearch();
+        });
+      }
+
+      if (submitButton) {
+        submitButton.addEventListener("click", function() {
+        toggleButtonInversion(submitButton);
+        console.log('Submit button clicked!');
+
+        const permIdInput = document.getElementById('permid');
+        const groupValueRaw = groupSelect.value.trim();
+        const groupValue = groupValueRaw === 'add_new' ? newGroupInput.value.trim() : groupValueRaw;
+
+        // Validate Group
+        if (!groupValue || groupValue === ' ') {
+          alert("GROUP is a required field. Please select or enter a Group before submitting.");
+          if (newGroupInput.style.display === 'inline-block') {
+            newGroupInput.focus();
+          } else {
+            groupSelect.focus();
+          }
+          return;
+        }
+
+        // Validate PermID
+        let permIdRaw = permIdInput.value.trim(); // Change to let, as we might modify it
+
+        if (!permIdRaw) {
+          showEmptyPermidDialog("Please enter a PermID before submitting.")
+            .then(() => permIdInput.focus())
+            .catch(error => console.error('Error or dialog closed:', error));
+          return;
+        }
+
+        // Temp IDs handling
+        if (groupValue.toLowerCase() === 'temp ids') {
+          if (!permIdRaw.toLowerCase().startsWith('temp')) {
+            alert("For 'Temp IDs', PermID must start with 'temp'.");
+            permIdInput.focus();
+            return;
+          }
+          // Auto-fix only the prefix if it's not exactly 'temp' (case-insensitive)
+          permIdInput.value = 'temp' + permIdRaw.slice(4);
+          permIdRaw = permIdInput.value; // Update permIdRaw after auto-fix for subsequent checks
+        } else { // This block is for non-Temp IDs groups
+          const firstFour = permIdRaw.substring(0, 4);
+
+          // --- VALIDATION: First 4 characters must be:
+          //      1. Start with a letter
+          //      2. Followed by 3 alphanumeric characters
+          //      3. At least one of those 3 must be a number
+          // regex: ^[a-zA-Z](?=[a-zA-Z0-9]*[0-9])[a-zA-Z0-9]{3}$
+          if (!/^[a-zA-Z](?=[a-zA-Z0-9]*[0-9])[a-zA-Z0-9]{3}$/.test(firstFour)) {
+            alert("PermID must start with a letter and contain at least one number in the first 4 characters (e.g., R345, RU20, R8HA).");
+            permIdInput.focus();
+            return;
+          }
+
+          // --- AUTO-FIX: Convert first 4 characters to uppercase if they contain lowercase letters ---
+          if (/[a-z]/.test(firstFour)) {
+            permIdInput.value = firstFour.toUpperCase() + permIdRaw.substring(4);
+            permIdRaw = permIdInput.value; // Update permIdRaw after auto-fix for subsequent checks
+            console.log("PermID auto-corrected to uppercase in first 4 characters for non-Temp IDs.");
+            // No alert, no return. The flow continues.
+          }
+          // --- END AUTO-FIX ---
+        }
+
+        // Validate SZ
+        const szInput = document.getElementById('sz');
+        const szValue = szInput.value.trim().toUpperCase();
+        if (!validateSz(szValue)) {
+          showCustomSzErrorDialog('Invalid SZ format. Please enter NA, W, P, J, J1, J2, S3, S4, A, or A5 (or greater).')
+            .then(() => szInput.focus())
+            .catch(error => console.error('Error or dialog closed:', error));
+          return;
+        }
+        szInput.value = szValue; // Update the actual input field with the validated value
+          
+          var formData = ProcessRecordData();
+          if (formData === null) {
+            // Validation failed, do not proceed with submission
+            return;
+          }
+
+        google.script.run
+          .withSuccessHandler(function(rowNumber) {
+            displayEditSuccessMessage(rowNumber);
+          })
+          .withFailureHandler(function(error) {
+            console.error('Error updating record:', error);
+            showCustomSzErrorDialog('Error updating record: ' + error.message);
+          })
+          .EditRecord(formData);
+        });
+      } else {
+        console.error('Submit button not found');
+      }      
+    });
+
+    /*
+    // Use for testing  with call above
+    function testServerLogging() {
+      console.log('Testing server logging');
+      google.script.run
+        .withSuccessHandler(function(result) {
+          console.log('Server logging test result:', result);
+        })
+        .withFailureHandler(function(error) {
+          console.error('Server logging test error:', error);
+        })
+        .testServerLogging();
+    }
+    */
+
+    function performSearch(permId) {
+      console.log('Entering performSearch function');
+      console.log('Performing search for PermID:', permId);
+
+      try {
+        google.script.run
+          .withSuccessHandler(function(response) {
+            console.log('Search response received:', response);
+            if (response.singleMatch) {
+              console.log('Single match found, populating form');
+              populateForm(response.data);
+            } else if (response.multipleMatches) {
+              console.log('Multiple matches found, handling');
+              handleMultipleMatches(response.matches);
+            } else if (response.error) {
+              console.error('Error from server:', response.error);
+              showErrorModal(`Error: ${response.error}`)
+                .then(() => {
+                  document.getElementById('permIdSearch').focus();
+                })
+                .catch(error => {
+                  console.error('Error showing modal:', error);
+                });
+            }
+          })
+          .withFailureHandler(function(error) {
+            console.error('Error searching record:', error);
+            document.getElementById('output').innerHTML = 'Error searching record: ' + error.message;
+          })
+          .GetRecordData(permId);
+
+      } catch (error) {
+        console.error('Error in performSearch function:', error);
+      }
+    }
+
+    function handleMultipleMatches(matches) {
+      showCustomConfirmDialog(matches)
+        .then(selectedIndex => {
+          console.log('Selected index:', selectedIndex);
+          populateForm(matches[selectedIndex]);
+        })
+        .catch(error => {
+          console.error('Error or dialog closed:', error);
+        });
+    }
+
+    function createMatchesMessage(matches) {
+      let message = "Multiple matches found. Please select one to edit:<br><br>";
+      matches.forEach((match, index) => {
+        message += `<button onclick="resolveCustomConfirm(${index})">${index + 1}. ${match.permid}</button><br>`;
+      });
+      return message;
+    }
+
+    function showCustomConfirmDialog(matches) {
+      return new Promise((resolve, reject) => {
+        const dialog = document.getElementById('customConfirmDialog');
+        const confirmMessage = document.getElementById('confirmMessage');
+        const closeButton = document.getElementById('confirmClose'); 
+
+        if (!dialog || !confirmMessage || !closeButton) {
+
+          reject(new Error('Custom confirm dialog elements not found'));
+          return;
+        }
+
+        confirmMessage.innerHTML = 'Multiple matching records found. Please select one:<br><br>';
+
+        matches.forEach((match, index) => {
+          const button = document.createElement('button');
+          button.textContent = `${index + 1}: ${match.permid}`;
+          button.className = 'selectButton';
+          button.dataset.index = index;
+          confirmMessage.appendChild(button);
+          confirmMessage.innerHTML += '<br>';
+        });
+
+        dialog.style.display = 'block';
+
+        const selectButtons = document.querySelectorAll('.selectButton');
+        selectButtons.forEach(button => {
+          button.addEventListener('click', function() {
+            // Add blink effect on click
+            this.classList.add('blink-on-click');
+            
+            // Delay closing the modal to allow the blink animation to be visible
+            setTimeout(() => {
+              const selectedIndex = this.dataset.index;
+              dialog.style.display = 'none';
+              resolve(selectedIndex); // Resolve with the index of the selected record
+            }, 500); // Match this duration with the blink animation duration
+          });
+        });
+
+        closeButton.addEventListener('click', function() {
+          dialog.style.display = 'none';
+          reject(new Error('Dialog closed'));
+        });
+      });
+    }
+
+    function showCustomSzErrorDialog(message) {
+      return new Promise((resolve, reject) => {
+        const dialog = document.getElementById('customConfirmDialog');
+        const confirmMessage = document.getElementById('confirmMessage');
+        //const closeButton = document.getElementById('confirmClose');
+
+        if (!dialog || !confirmMessage ) {
+          reject(new Error('Custom confirm dialog elements not found'));
+          return;
+        }
+
+        // Format the message with line breaks and grouping
+        const formattedMessage = `
+          Invalid SZ format.<br>
+          Please enter one of the following:
+          <br><br>
+          NA,<br>
+          W,<br>
+          P,<br>
+          J, J1, J2,<br>
+          S3, S4,<br>
+          A, or A5 (or greater)<br>
+        `;           
+      
+        confirmMessage.innerHTML = formattedMessage;
+
+        // Create container for OK button
+        const buttonContainer = document.createElement('div');
+        buttonContainer.className = 'button-container';
+
+        const okButton = document.createElement('button');
+        okButton.textContent = 'OK';
+        okButton.className = 'selectButton';
+        
+        // Append the button to the container, then the container to the confirmMessage
+        buttonContainer.appendChild(okButton);
+        confirmMessage.appendChild(buttonContainer);
+
+        dialog.style.display = 'block';
+
+        okButton.addEventListener('click', function() {
+          this.classList.add('blink-on-click');
+          
+          setTimeout(() => {
+            dialog.style.display = 'none';
+            resolve();
+          }, 500); // Match this duration with the blink animation duration
+        });
+      });
+    }
+
+    function closeModal() {
+      const dialog = document.getElementById('customConfirmDialog');
+      dialog.style.display = 'none';
+    }
+
+    function showErrorModal(message) {
+      console.log('Attempting to show error modal');
+      return new Promise((resolve, reject) => {
+        const dialog = document.getElementById('customConfirmDialog');
+        const confirmMessage = document.getElementById('confirmMessage');
+
+        console.log('Dialog elements:', { dialog, confirmMessage });
+
+        if (!dialog || !confirmMessage) {
+          console.error('Custom confirm dialog elements not found');
+          reject(new Error('Custom confirm dialog elements not found'));
+          return;
+        }
+
+        confirmMessage.innerHTML = `${message}<br><br>`;
+
+        const okButton = document.createElement('button');
+        okButton.textContent = 'OK';
+        okButton.className = 'selectButton';
+        
+        const buttonContainer = document.createElement('div');
+        buttonContainer.className = 'button-container';
+        buttonContainer.appendChild(okButton);
+        confirmMessage.appendChild(buttonContainer);
+
+        console.log('Setting dialog display to block');
+        dialog.style.display = 'block';
+
+        okButton.addEventListener('click', function() {
+          console.log('OK button clicked');
+          this.classList.add('blink-on-click');
+          
+          setTimeout(() => {
+            dialog.style.display = 'none';
+            resolve();
+          }, 500);
+        });
+      });
+    }
+
+    function displayEditSuccessMessage(rowNumber) {
+      console.log("displayEditSuccessMessage rowNumber = " + rowNumber); 
+      console.log("currentPermId: " + currentPermId);
+      console.log("editPermId: " + editPermId);
+      console.log("preEditGroup: " + preEditGroup);
+      console.log("editGroup: " + editGroup);
+
+      const submitButton = document.getElementById('submitbutton');
+      submitButton.disabled = true;
+      submitButton.textContent = 'Record Successfully Updated';
+      submitButton.style.backgroundColor = 'green';
+      submitButton.style.color = 'white';
+      console.log('Record successfully updated');
+
+      setTimeout(() => {
+      submitButton.disabled = false;
+      submitButton.textContent = 'Submit';
+      submitButton.style.backgroundColor = ''; // Reset background color
+      submitButton.style.color = ''; // Reset text color
+    }, 2000); // Restore button after 2 seconds
+
+      // Call the server-side function to set focus and highlight
+      console.log('Just before setFocusAndHighlightLater call');
+      console.log('Comparing PermIds: ' + currentPermId + " = " + editPermId + " and Groups: " + preEditGroup + " = " + editGroup);
+
+      const isNewRecord = currentPermId !== editPermId || preEditGroup !== editGroup;
+      
+      //const isNewRecord = currentPermId !== editPermId  // True/False for record with edited permid
+      google.script.run.setFocusAndHighlightLater(rowNumber, isNewRecord);
+
+      // Close the window after displaying the success message
+      setTimeout(() => {
+          google.script.host.close();
+      }, 1000); // Delay to display success message
+    }
+
+    function validateSz(value) {
+      console.log('Validating SZ:', value);
+      
+      // Trim and uppercase the input
+      value = value.trim().toUpperCase();
+      
+      // Check for NA, W, P, J, J1, J2, S3, S4, A
+      if (['NA','W', 'P', 'J', 'J1', 'J2', 'S3', 'S4', 'A'].includes(value)) {
+        return true;
+      }
+      
+      // Check for A5 or greater
+      if (value.startsWith('A')) {
+        const number = parseInt(value.slice(1));
+        return !isNaN(number) && number >= 5;
+      }
+      
+      // If none of the above conditions are met, it's invalid
+      return false;
+    }
+
+    function populateForm(record) {
+      document.getElementById('form-overlay').style.display = 'none';
+
+      // Fetch rowNumber correctly from the hidden field
+      lastRowNumberDisplay.textContent = record.rowNumber;
+      //console.log("lastRowNumberDisplay = ", lastRowNumberDisplay.textContent);
+
+      currentPermId = record.permid;
+      document.getElementById('currentPermId').value = currentPermId;
+      preEditGroup = record.group;
+      document.getElementById('preEditGroup').value = preEditGroup;
+
+      var permidInput = document.getElementById('permid-input');
+      var groupSelect = document.getElementById('group');
+      var newGroupInput = document.getElementById('newGroupInput');
+
+      if (record && record.error) {
+        console.error("Error retrieving record:", record.error);
+        alert("Error retrieving record: " + record.error);
+      } else if (record) {
+        lastRowNumberDisplay.value = record.rowNumber || '';
+        document.getElementById('island').value = record.island || '';
+        
+        // Handle the group field
+        if (record.group) {
+          let groupOption = Array.from(groupSelect.options).find(option => option.value === record.group);
+          if (!groupOption) {
+            // If the group doesn't exist, add it to the dropdown
+            const newOption = document.createElement('option');
+            newOption.value = record.group;
+            newOption.text = record.group;
+            groupSelect.insertBefore(newOption, groupSelect.lastElementChild);
+          }
+          groupSelect.value = record.group;
+          newGroupInput.style.display = 'none';
+          groupSelect.style.display = 'inline-block';
+        } else {
+          // If no group, reset to default
+          groupSelect.value = '';
+          newGroupInput.value = '';
+          newGroupInput.style.display = 'none';
+          groupSelect.style.display = 'inline-block';
+        }
+
+        document.getElementById('permid').value = record.permid || '';
+        document.getElementById('sz').value = record.sz || '';
+        document.getElementById('sx').value = record.sx || '';      
+        document.getElementById('tagged').value = record.tagged || '';
+        document.getElementById('lefttag').value = record.lefttag || '';
+        document.getElementById('ltresight').value = record.ltresight || '';
+        document.getElementById('ltconddorsal').value = record.ltconddorsal || '';
+        document.getElementById('ltcondventral').value = record.ltcondventral || '';
+        document.getElementById('righttag').value = record.righttag || '';      
+        document.getElementById('rtresight').value = record.rtresight || '';
+        document.getElementById('rtconddorsal').value = record.rtconddorsal || '';
+        document.getElementById('rtcondventral').value = record.rtcondventral || '';
+        document.getElementById('comment').value = record.comment || '';
+        document.getElementById('1number').value = record.number1 || '';
+        document.getElementById('1mark').value = record.mark1 || '';      
+        document.getElementById('1location1').value = record.location1_1 || '';
+        document.getElementById('1location1a').value = record.location1a_1 || '';
+        document.getElementById('1site').value = record.site1 || '';
+        document.getElementById('2number').value = record.number2 || '';
+        document.getElementById('2mark').value = record.mark2 || '';      
+        document.getElementById('2location1').value = record.location1_2 || '';
+        document.getElementById('2location1a').value = record.location1a_2 || '';
+        document.getElementById('2site').value = record.site2 || '';
+        document.getElementById('3number').value = record.number3 || '';
+        document.getElementById('3mark').value = record.mark3 || '';      
+        document.getElementById('3location1').value = record.location1_3 || '';
+        document.getElementById('3location1a').value = record.location1a_3 || '';
+        document.getElementById('3site').value = record.site3 || '';
+        document.getElementById('4number').value = record.number4 || '';
+        document.getElementById('4mark').value = record.mark4 || '';      
+        document.getElementById('4location1').value = record.location1_4 || '';
+        document.getElementById('4location1a').value = record.location1a_4 || '';
+        document.getElementById('4site').value = record.site4 || '';
+        document.getElementById('5number').value = record.number5 || '';
+        document.getElementById('5mark').value = record.mark5 || '';      
+        document.getElementById('5location1').value = record.location1_5 || '';
+        document.getElementById('5location1a').value = record.location1a_5 || '';
+        document.getElementById('5site').value = record.site5 || '';
+        document.getElementById('6number').value = record.number6 || '';
+        document.getElementById('6mark').value = record.mark6 || '';      
+        document.getElementById('6location1').value = record.location1_6 || '';
+        document.getElementById('6location1a').value = record.location1a_6 || '';
+        document.getElementById('6site').value = record.site6 || '';
+        document.getElementById('7number').value = record.number7 || '';
+        document.getElementById('7mark').value = record.mark7 || '';      
+        document.getElementById('7location1').value = record.location1_7 || '';
+        document.getElementById('7location1a').value = record.location1a_7 || '';
+        document.getElementById('7site').value = record.site7 || ''; 
+        document.getElementById('dead').value = record.dead || '';
+
+      } else {
+        console.error("Unexpected format of record:", record); 
+        alert("Unexpected format of record: " + record);
+      }
+    }
+
+    function ProcessRecordData() {
+      // Get the group value
+      const groupSelect = document.getElementById('group');
+      const newGroupInput = document.getElementById('newGroupInput');
+      let groupValue;
+
+      if (newGroupInput.style.display !== 'none' && newGroupInput.value.trim() !== '') {
+        // If a new group was entered, use that value
+        groupValue = newGroupInput.value.trim();
+      } else {
+        // Otherwise, use the selected value from the dropdown
+        groupValue = groupSelect.value;
+      }
+
+      const szValue = document.getElementById('sz').value; // Get the value directly from the field, which was updated by submitButton handler
+      
+      editPermId = document.getElementById('permid').value;
+      document.getElementById('editPermId').value = editPermId; // Assuming 'editPermId' is a hidden field or similar
+      
+      editGroup = document.getElementById('group').value; // Get the raw value from the select, might be 'add_new'
+      document.getElementById('editGroup').value = editGroup; // Assuming 'editGroup' is a hidden field or similar
+
+      // Collect data from form and return as an object
+      var formData = {
+        rowNumber: document.getElementById('lastRowNumberDisplay').value,
+        island: document.getElementById('island').value,
+        group: groupValue, // Uses the dropdown or new group input value that was determined above
+        permid: document.getElementById('permid').value,
+        sz: szValue, // Uses the SZ value directly from the field, which has been pre-validated and uppercased by the submitButton handler
+        sx: document.getElementById('sx').value,
+        tagged: document.getElementById('tagged').value,
+        lefttag: document.getElementById('lefttag').value,
+        ltresight: document.getElementById('ltresight').value,
+        ltconddorsal: document.getElementById('ltconddorsal').value,
+        ltcondventral: document.getElementById('ltcondventral').value,
+        righttag: document.getElementById('righttag').value,
+        rtresight: document.getElementById('rtresight').value,
+        rtconddorsal: document.getElementById('rtconddorsal').value,
+        rtcondventral: document.getElementById('rtcondventral').value,
+        comment: document.getElementById('comment').value,
+        number1: document.getElementById('1number').value,
+        mark1: document.getElementById('1mark').value,
+        location1_1: document.getElementById('1location1').value,
+        location1a_1: document.getElementById('1location1a').value,
+        site1: document.getElementById('1site').value,
+        number2: document.getElementById('2number').value,
+        mark2: document.getElementById('2mark').value,
+        location1_2: document.getElementById('2location1').value,
+        location1a_2: document.getElementById('2location1a').value,
+        site2: document.getElementById('2site').value,
+        number3: document.getElementById('3number').value,
+        mark3: document.getElementById('3mark').value,
+        location1_3: document.getElementById('3location1').value,
+        location1a_3: document.getElementById('3location1a').value,
+        site3: document.getElementById('3site').value,
+        number4: document.getElementById('4number').value,
+        mark4: document.getElementById('4mark').value,
+        location1_4: document.getElementById('4location1').value,
+        location1a_4: document.getElementById('4location1a').value,
+        site4: document.getElementById('4site').value,
+        number5: document.getElementById('5number').value,
+        mark5: document.getElementById('5mark').value,
+        location1_5: document.getElementById('5location1').value,
+        location1a_5: document.getElementById('5location1a').value,
+        site5: document.getElementById('5site').value,
+        number6: document.getElementById('6number').value,
+        mark6: document.getElementById('6mark').value,
+        location1_6: document.getElementById('6location1').value,
+        location1a_6: document.getElementById('6location1a').value,
+        site6: document.getElementById('6site').value,
+        number7: document.getElementById('7number').value,
+        mark7: document.getElementById('7mark').value,
+        location1_7: document.getElementById('7location1').value,
+        location1a_7: document.getElementById('7location1a').value,
+        site7: document.getElementById('7site').value,
+        dead: document.getElementById('dead').value,
+        currentPermId: document.getElementById('currentPermId').value,
+        preEditGroup: document.getElementById('preEditGroup').value,
+      };
+      console.log('ProcessRecordData fxn: formData =', formData);
+      return formData; // Always returns the formData object now
+    }
+  </script>
+</body>
+</html>

@@ -1,0 +1,876 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <title>Add Record</title>
+  <style>
+      /* Container holding the submit button */
+      .custom-button {
+        font-size: 16px;
+        padding: 5px;
+        cursor: pointer;
+        border: 1px solid black;
+        border-radius: 4px;
+        flex-grow: 1;
+        min-width: 80px;
+        margin-right: 10px;
+        margin-top: 0px;
+        position: relative;
+        top: -2px;
+      }
+      .custom-button:not(#submitbutton) {
+        background-color: rgb(247, 243, 243);
+        color: black;
+      }
+      #submitbutton {
+        background-color: rgb(0,128,0) !important;
+        color: white !important;
+      }
+      .custom-button:hover {
+        background-color: rgb(214, 214, 214); /* Dark gray background */
+      }
+      .custom-button.inverse {
+        background-color: black;
+        color: rgb(247, 243, 243);
+      }
+      .button-inverse {
+        background-color: currentColor;
+        color: inherit;
+      }
+      #submitbutton.inverse {
+        background-color: white!important;
+        color: rgb(0,128,0) !important;
+      }
+      .required-label {
+        color: black;
+        font-size: 14px; /* Optional: Adjust size for better readability */
+        position: absolute;
+        top: 30px;
+        right: 45px;
+        background-color: transparent; /* Ensure no background for the label */
+      }
+      .red-asterick {
+        color: red;
+      }
+      .modal {
+        display: none;
+        position: fixed;
+        z-index: 1;
+        left: 0;
+        top: 0;
+        width: 100%;
+        height: 100%;
+        overflow: auto;
+        background-color: rgba(0,0,0,0.4);
+      }
+      .modal-content {
+        background-color: #fefefe;
+        margin: 15% auto;
+        padding: 20px;
+        border: 1px solid #888;
+        border-radius: 6px;
+        width: 30%;
+        max-width: 400px;
+        text-align: center;
+        border: 2px solid black;
+        border-radius: 5px;
+      }
+      .modal-button {
+        margin-top: 20px;
+        padding: 10px 20px;
+        color: black;
+        border: none;
+        cursor: pointer;
+      }
+      .modal-button:hover {
+        background-color: #45a049;
+      }
+      button {
+        margin: 10px;
+        padding: 5px 10px;
+        border: 1px solid #888;
+        border-radius: 6px;
+      }
+      #confirmYes {
+        background-color: rgb(0,128,0) !important;
+        color: white !important;
+      }
+      .close-button {
+          position: absolute;
+          top: 10px;
+          right: 10px;
+          font-size: 18px;
+          cursor: pointer;
+      }
+      .close {
+          font-size: 36px;
+          font-weight: bold;
+          cursor: pointer;
+          color: #aaa;
+          float: right;
+      }
+      .close:hover {
+          color: red;
+          cursor: pointer;
+      }
+      .selectButton {
+          margin-top: 10px;
+          padding: 5px 10px;
+          cursor: pointer;
+      }
+      .selectButton:hover {
+          background-color: #45a049;
+      }
+      /* CSS for blink effect */
+      @keyframes blink {
+        0%, 100% { background-color: #f0f0f0; } /* Original color */
+        50% { background-color: #fffec5; } /* Blink color */
+      }
+      .blink-on-click {
+        animation: blink 0.5s ease-in-out;
+      }
+      /* Additional styling for form layout */
+      .master-container {
+          width: 1030px;
+          height: 544px;
+          background-color: rgb(214,214,214);
+          display: flex;
+          flex-direction: column; /* Stacks elements vertically */
+          justify-content: flex-start; /* Aligns items to the top */
+          align-items: flex-start; /* Aligns items to the left */
+          box-sizing: border-box;
+          border-radius: 10px;
+          padding: 10px; /* Optional padding */
+      }
+      .form-container {
+            width: 1015px;
+            height: 494px;
+            margin-top: 4px;
+            margin-left: -3px;
+            margin-top: -7px;
+            background-color: rgb(247,243,243);
+            border: 1px;
+            border-radius: 10px;
+      }
+      div {
+          display: flex;
+          flex-direction: column;
+      }        
+      label {
+          font-weight: bold;
+      }        
+      input, select, textarea {
+          box-sizing: border-box;            
+      }
+      #newGroupInput {
+          width: 50%;
+          padding: 5px;
+          margin-top: 5px;
+      }
+      table {
+          width: 80%;
+          border-collapse: collapse;
+          margin-top: 5px;
+          margin-left: 10px;
+      }        
+      td {
+          padding: 3px;
+          text-align: left;
+      }
+      th {
+          height: 30px;
+          text-align: left;
+      }        
+      .island-dropdown {width: 113px;height: 25px;}
+      .group-input {width: 156px;height: 25px;}
+      .permid-input {width: 128px;height: 25px; background-color: #fffec5; color: red;}
+      .sz-input {width: 50px;height: 25px;text-transform: uppercase;}
+      .sx-input {width: 116px;height: 25px;}
+      .tagged-dropdown {width: 116px;height: 25px;}
+      .comment-textarea {height: 50px; width: 400px;}
+      .lefttag-input {width: 116px;height: 25px;}
+      .ltresight-input {width: 150px;height: 25px;}
+      .ltconddorsal-input {width: 150px;height: 25px;}
+      .ltcondventral-input {width: 150px;height: 25px;}
+      .righttag-input {width: 116px;height: 25px;}
+      .rtresight-input {width: 150px;height: 25px;}
+      .rtconddorsal-input {width: 150px;height: 25px;}
+      .rtcondventral-input {width: 150px;height: 25px;}
+      .item-column {width: 12px;}
+      .number-column { width: 111px; }
+      .mark-column { width: 200px; }
+      .location1-column { width: 100px; }
+      .location1a-column { width: 75px; }
+      .site-column { width: 75px; }
+      .number-dropdown {width: 105px; height: 25px;}
+      .mark-dropdown {width: 235px; height: 25px;}
+      .location1-dropdown {width: 188px; height: 25px;}
+      .location1a-dropdown {width: 188px; height: 25px;}
+      .site-dropdown {width: 235px; height: 25px;}
+  </style>
+  <script>
+    // Function to populate dropdowns
+    function populateDropdowns() {
+    // Loop through each row (1 through 7) and populate the associated dropdowns
+    for (let i = 1; i <= 7; i++) {
+      populateDropdown(`${i}number`, "A");      // Dropdown for numbers from column A
+      populateDropdown(`${i}mark`, "B");        // Dropdown for marks from column B
+      populateDropdown(`${i}location1`, "C");   // Dropdown for location1 from column C
+      populateDropdown(`${i}location1a`, "D");  // Dropdown for location1a from column D
+      populateDropdown(`${i}site`, "E");        // Dropdown for site from column E
+      }
+    }
+
+
+    // Function to call server-side and populate a specific dropdown
+    function populateDropdown(dropdownId, column) {
+      google.script.run.withSuccessHandler(function(values) {
+        var dropdown = document.getElementById(dropdownId);  // Get the dropdown element by its ID
+        dropdown.innerHTML = '';  // Clear existing options in the dropdown
+        
+        // Loop through the values received from the server and add them as dropdown options
+        values.forEach(function(value) {
+          var option = document.createElement("option");  // Create a new option element
+          option.textContent = value;  // Set the text content of the option
+          option.value = value;  // Set the value of the option
+          dropdown.appendChild(option);  // Append the option to the dropdown
+        });
+      }).GetDropDownArray(column);  // Call the server-side function to get the dropdown values
+    }
+    
+    // Event listener for DOMContentLoaded
+    document.addEventListener("DOMContentLoaded", populateDropdowns);
+  </script>
+</head>
+<body>
+
+  <div class="master-container">
+    <div class="submit-button">
+      <button class="custom-button" id="submitbutton">Submit</button>
+      <label class="required-label"><span class="red-asterick">*</span>Required</label>
+      <div id="message-container"></div>   
+    </div>
+    <form id="frmAddRecord">  
+        <div class="form-container">            
+            <!-- Island Group PermId Sz Sz Tagged Table...................................... -->
+            <table>
+                <tbody>
+                    <tr>
+                        <td>
+                            <div>
+                                <label>Island</label>
+                                <select class="island-dropdown" id="island">
+                                  <option value=" "></option>
+                                  <option value="Hawaii">Hawaii</option>
+                                  <option value="Maui">Maui</option>
+                                  <option value="Lanai">Lanai</option>
+                                  <option value="Moloka'i">Moloka'i</option>
+                                  <option value="O'hau">O'hau</option>
+                                  <option value="Kauai">Kauai</option>
+                                </select>
+                            </div>
+                        </td>
+                        <td>
+                            <div>
+                                <label for="group">Group<span class="red-asterick">*</span></label>
+                                <select class="group-input" id="group">
+                                    <option value=" "></option>
+                                    <option value="Non-Cohort Tags">Non-Cohort Tags</option>
+                                    <option value="Untagged">Untagged</option>
+                                    <option value="Temp IDs">Temp IDs</option>
+                                    <option value="U Cohort 2025">U Cohort 2025</option>
+                                    <option value="V Cohort 2026">V Cohort 2026</option>
+                                    <option value="W Cohort 2027">W Cohort 2027</option>
+                                    <option value="add_new">Add New...</option>
+                                </select>
+                                <input type="text" id="newGroupInput" style="display: none;" placeholder="Enter new group">
+                            </div>
+                        </td>
+                        <td>
+                            <div>
+                                <label>PermId<span class="red-asterick">*</span></label>
+                                <input class="permid-input" id="permid">
+                            </div>
+                        </td>
+                        <td>
+                            <div>
+                                <label>Sz<span class="red-asterick">*</span></label>
+                                <input class="sz-input" id= "sz">
+                            </div>
+                        </td>
+                        <td>
+                            <div>
+                                <label>Sx</label>
+                                <select class="sx-input" id= "sx">
+                                  <option value=" "></option>
+                                  <option value="Male">Male</option>
+                                  <option value="Female">Female</option>
+                                  <option value="Unknown">Unknown</option>
+                                </select>
+                            </div>
+                        </td>
+                        <td>
+                            <div>
+                                <label>Tagged</label>
+                                <select class="tagged-dropdown" id= "tagged">
+                                  <option value=" "></option>
+                                  <option value="Tag">Tag</option>
+                                </select>
+                            </div>
+                        </td>
+                    </tr>
+                </tbody>
+            </table>    
+
+            <!-- Tag / Comment Table.................................................. -->
+            <table>
+                <tbody>
+                    <tr>
+                        <td>
+                            <div>
+                                <label>Left Tag</label>
+                                <input class="lefttag-input" id="lefttag">
+                            </div>
+                        </td>
+                        <td>
+                            <div>
+                                <label>Left Tag Resight Date</label>
+                                <input class="ltresight-input" id="ltresight">
+                            </div>
+                        </td>
+                        <td>
+                            <div>
+                                <label>Left Tag Condition Dorsal</label>
+                                <input class="ltconddorsal-input" id="ltconddorsal">
+                            </div>
+                        </td>
+                        <td>
+                            <div>
+                                <label>Left Tag Condition Ventral</label>
+                                <input class="ltcondventral-input" id="ltcondventral">
+                            </div>
+                        </td>
+                    </tr>
+                    <tr>
+                        <td>
+                            <div>
+                                <label>Right Tag</label>
+                                <input class="righttag-input" id="righttag">
+                            </div>
+                        </td>
+                        <td>
+                            <div>
+                                <label>Right Tag Resight Date</label>
+                                <input class="rtresight-input" id="rtresight">
+                            </div>
+                        </td>
+                        <td>
+                            <div>
+                                <label>Right Tag Condition Dorsal</label>
+                                <input class="rtconddorsal-input" id="rtconddorsal">
+                            </div>
+                        </td>
+                        <td>
+                            <div>
+                                <label>Right Tag Condition Ventral</label>
+                                <input class="rtcondventral-input" id="rtcondventral">
+                            </div>
+                        </td>
+                    </tr>
+                    <tr>
+                        <td colspan="4">
+                            <div>
+                                <label for="comment">Comment</label>
+                                <textarea class="comment-textarea" id="comment"></textarea>
+                            </div>
+                        </td>
+                    </tr>
+                </tbody>
+            </table>
+            
+            <!-- Identifying Marks Table.................................................. -->
+            <table>
+                <thead>
+                    <tr>
+                        <th class="item-column">#</th>
+                        <th class="number-column">Number</th>
+                        <th class="mark-column">Mark</th>
+                        <th class="location1-column">Location1</th>
+                        <th class="location1a-column">Location1a</th>
+                        <th class="site-column">Site</th>
+                    </tr>
+                </thead>
+                <tbody>
+                    <tr>
+                        <td>1</td>
+                        <td><select class="number-dropdown" id="1number"></select></td>
+                        <td><select class="mark-dropdown" id="1mark"></select></td>
+                        <td><select class="location1-dropdown" id="1location1"></select></td>
+                        <td><select class="location1a-dropdown" id="1location1a"></select></td>
+                        <td><select class="site-dropdown" id="1site"></select></td>
+                    </tr>
+                    <tr>
+                        <td>2</td>
+                        <td><select class="number-dropdown" id="2number"></select></td>
+                        <td><select class="mark-dropdown" id="2mark"></select></td>
+                        <td><select class="location1-dropdown" id="2location1"></select></td>
+                        <td><select class="location1a-dropdown" id="2location1a"></select></td>
+                        <td><select class="site-dropdown" id="2site"></select></td>
+                    </tr>
+                    <tr>
+                        <td>3</td>
+                        <td><select class="number-dropdown" id="3number"></select></td>
+                        <td><select class="mark-dropdown" id="3mark"></select></td>
+                        <td><select class="location1-dropdown" id="3location1"></select></td>
+                        <td><select class="location1a-dropdown" id="3location1a"></select></td>
+                        <td><select class="site-dropdown" id="3site"></select></td>   
+                    </tr>
+                    <tr>
+                        <td>4</td>
+                        <td><select class="number-dropdown" id="4number"></select></td>
+                        <td><select class="mark-dropdown" id="4mark"></select></td>
+                        <td><select class="location1-dropdown" id="4location1"></select></td>
+                        <td><select class="location1a-dropdown" id="4location1a"></select></td>
+                        <td><select class="site-dropdown" id="4site"></select></td>  
+                    </tr>
+                    <tr>
+                        <td>5</td>
+                        <td><select class="number-dropdown" id="5number"></select></td>
+                        <td><select class="mark-dropdown" id="5mark"></select></td>
+                        <td><select class="location1-dropdown" id="5location1"></select></td>
+                        <td><select class="location1a-dropdown" id="5location1a"></select></td>
+                        <td><select class="site-dropdown" id="5site"></select></td> 
+                    </tr>
+                    <tr>
+                        <td>6</td>
+                        <td><select class="number-dropdown" id="6number"></select></td>
+                        <td><select class="mark-dropdown" id="6mark"></select></td>
+                        <td><select class="location1-dropdown" id="6location1"></select></td>
+                        <td><select class="location1a-dropdown" id="6location1a"></select></td>
+                        <td><select class="site-dropdown" id="6site"></select></td> 
+                    </tr>
+                    <tr>
+                        <td>7</td>
+                        <td><select class="number-dropdown" id="7number"></select></td>
+                        <td><select class="mark-dropdown" id="7mark"></select></td>
+                        <td><select class="location1-dropdown" id="7location1"></select></td>
+                        <td><select class="location1a-dropdown" id="7location1a"></select></td>
+                        <td><select class="site-dropdown" id="7site"></select></td>
+                    </tr>
+                </tbody>
+            </table>
+        </div>
+    </form>
+  </div>
+  <div id="customConfirmDialog" class="modal" style="display:none;">
+    <div class="modal-content">
+      <p id="confirmMessage"></p>
+      <button id="confirmYes">Add</button>
+      <button id="confirmNo">Cancel</button>
+    </div>
+  </div>
+  <div id="customSzErrorDialog" class="modal" style="display:none;">
+    <div class="modal-content">
+      <p id="szConfirmMessage"></p>
+    </div>
+  </div>
+  <div id="EmptyPermidDialog" class="modal" style="display:none;">
+    <div class="modal-content">
+    <p id="EmptyPermidMessage"></p>
+    </div>
+  </div>
+
+<script>
+  document.addEventListener("DOMContentLoaded", function() {
+    const submitButton = document.getElementById("submitbutton");
+    const groupSelect = document.getElementById('group');
+    const newGroupInput = document.getElementById('newGroupInput');
+
+    groupSelect.addEventListener('change', function () {
+      if (this.value === 'add_new') {
+        this.style.display = 'none';
+        newGroupInput.style.display = 'inline-block';
+        newGroupInput.focus();
+      }
+    });
+
+    newGroupInput.addEventListener('blur', function () {
+      if (this.value.trim() === '') {
+        this.style.display = 'none';
+        groupSelect.style.display = 'inline-block';
+        groupSelect.value = ' ';
+      } else {
+        const newOption = document.createElement('option');
+        newOption.value = this.value;
+        newOption.text = this.value;
+        groupSelect.insertBefore(newOption, groupSelect.lastElementChild);
+        groupSelect.value = this.value;
+        this.style.display = 'none';
+        groupSelect.style.display = 'inline-block';
+      }
+    });
+
+    newGroupInput.addEventListener('keypress', function (e) {
+      if (e.key === 'Enter') {
+        this.blur();
+      }
+    });
+
+    function toggleButtonInversion(button) {
+      button.classList.add('inverse');
+      setTimeout(() => {
+        button.classList.remove('inverse');
+      }, 300);
+    }
+
+    if (submitButton) {
+      submitButton.addEventListener("click", function () {
+        toggleButtonInversion(submitButton);
+        console.log('Submit button clicked!');
+
+        const permIdInput = document.getElementById('permid');
+        const groupValueRaw = groupSelect.value.trim();
+        const groupValue = groupValueRaw === 'add_new' ? newGroupInput.value.trim() : groupValueRaw;
+
+        // Validate Group===========================================================
+        if (!groupValue || groupValue === ' ') {
+          alert("GROUP is a required field. Please select or enter a Group before submitting.");
+          if (newGroupInput.style.display === 'inline-block') {
+            newGroupInput.focus();
+          } else {
+            groupSelect.focus();
+          }
+          return;
+        }
+
+        // Validate PermID==========================================================
+        let permIdRaw = permIdInput.value.trim(); // Change to let, as we might modify it
+
+        if (!permIdRaw) {
+          showEmptyPermidDialog("Please enter a PermID before submitting.")
+            .then(() => permIdInput.focus())
+            .catch(error => console.error('Error or dialog closed:', error));
+          return;
+        }
+
+        // Temp IDs handling
+        if (groupValue.toLowerCase() === 'temp ids') {
+          if (!permIdRaw.toLowerCase().startsWith('temp')) {
+            alert("For 'Temp IDs', PermID must start with 'temp'.");
+            permIdInput.focus();
+            return;
+          }
+          // Auto-fix only the prefix if it's not exactly 'temp' (case-insensitive)
+          permIdInput.value = 'temp' + permIdRaw.slice(4);
+          permIdRaw = permIdInput.value; // Update permIdRaw after auto-fix for subsequent checks
+        } else {
+          const firstFour = permIdRaw.substring(0, 4);
+
+          // --- First 4 characters must be:
+          //      1. Start with a letter
+          //      2. Followed by 3 alphanumeric characters
+          //      3. At least one of those 3 must be a number
+          // regex: ^[a-zA-Z](?=[a-zA-Z0-9]*[0-9])[a-zA-Z0-9]{3}$
+          // - ^[a-zA-Z]: Starts with a letter
+          // - (?=[a-zA-Z0-9]*[0-9]): Positive lookahead to ensure there's at least one digit
+          //                           among the next three alphanumeric chars.
+          //   - [a-zA-Z0-9]*: Any alphanumeric characters (zero or more)
+          //   - [0-9]: Followed by at least one digit
+          // - [a-zA-Z0-9]{3}$: Exactly three alphanumeric characters after the first letter,
+          //                     and anchors to the end of the firstFour string.
+          if (!/^[a-zA-Z](?=[a-zA-Z0-9]*[0-9])[a-zA-Z0-9]{3}$/.test(firstFour)) {
+            alert("PermID must start with a letter and contain at least one number in the first 4 characters (e.g., R345, RU20, R8HA).");
+            permIdInput.focus();
+            return;
+          }
+          // --- END EDITED VALIDATION ---
+
+          // --- AUTO-FIX: Convert first 4 characters to uppercase if they contain lowercase letters ---
+          // This logic remains the same as it handles the case conversion after the format validation
+          if (/[a-z]/.test(firstFour)) {
+            permIdInput.value = firstFour.toUpperCase() + permIdRaw.substring(4);
+            permIdRaw = permIdInput.value; // Update permIdRaw after auto-fix for subsequent checks
+            console.log("PermID auto-corrected to uppercase in first 4 characters.");
+            // No alert, no return. The flow continues.
+          }
+          // --- END AUTO-FIX ---
+        }
+
+        // Validate SZ=====================================================================
+        const szInput = document.getElementById('sz');
+        const szValue = szInput.value.trim().toUpperCase();
+        if (!validateSz(szValue)) {
+          showCustomSzErrorDialog('Invalid SZ format. Please enter NA, W, P, J, J1, J2, S3, S4, A, or A5 (or greater).')
+            .then(() => szInput.focus())
+            .catch(error => console.error('Error or dialog closed:', error));
+          return;
+        }
+        szInput.value = szValue; // Update the actual input field with the validated value
+
+        // Process form
+        const formData = ProcessRecordData();
+        if (formData === null) return; // ProcessRecordData might return null if its internal SZ validation fails
+
+        google.script.run
+          .withSuccessHandler(function (isDuplicate) {
+            if (isDuplicate) {
+              customConfirm('This PermID already exists. Do you want to edit the existing record instead?')
+                .then((result) => {
+                  if (result) {
+                    google.script.run
+                      .withSuccessHandler(() => google.script.host.close())
+                      .withFailureHandler(error => {
+                        console.error('Error opening EditRecord.html:', error);
+                        customConfirm('Error opening Edit Record page. Please try again.');
+                      })
+                      .openEditRecordPage(formData.permid);
+                  }
+                });
+            } else {
+              customConfirm("Are you sure you want to <b>ADD</b> this record?")
+                .then((result) => {
+                  if (result) {
+                    appendNewRecord(formData);
+                  }
+                });
+            }
+          })
+          .withFailureHandler(function (error) {
+            console.error('Error checking PermID:', error);
+            customConfirm('An error occurred while checking the PermID. Please try again.');
+          })
+          .duplicatePermidCheck(formData.permid);
+      });
+    } else {
+      console.error('Submit button not found');
+    }
+  });
+  
+  function ProcessRecordData() {
+    const form = document.getElementById('frmAddRecord');
+    const formData = {};
+
+    // Collect form data from most elements
+    for (let i = 0; i < form.elements.length; i++) {
+        const field = form.elements[i];
+        // Exclude submit buttons and the newGroupInput for initial collection
+        // The group value will be handled specifically below
+        // The SZ value will be taken directly as it's pre-validated in submitButton handler
+        if (field.type !== 'submit' && field.id && field.id !== 'newGroupInput') {
+            formData[field.id] = field.value;
+        }
+    }
+
+    console.log('Form data collected (before final adjustments):', formData);
+
+    formData.sz = document.getElementById('sz').value; // Use the value directly from the UI field
+
+    // Handle group selection - this logic remains here to correctly determine the 'group' value for formData
+    const groupSelect = document.getElementById('group');
+    const newGroupInput = document.getElementById('newGroupInput');
+    if (newGroupInput.style.display !== 'none' && newGroupInput.value.trim() !== '') {
+        formData.group = newGroupInput.value.trim();
+    } else {
+        formData.group = groupSelect.value;
+    }
+    
+    console.log('Final formData in ProcessRecordData:', formData); // Log final object
+    return formData; // Always returns the formData object now, as no internal validation returns null
+  }
+
+  function appendNewRecord(formData) {
+      console.log("Final formData: ", formData);
+      
+      const dataToAppend = Object.values(formData);
+
+      google.script.run
+          .withSuccessHandler(function(returnedRow) {
+              console.log('Row data returned:', returnedRow);
+
+              if (returnedRow && returnedRow.lastRow) {
+                  displaySuccessMessage(returnedRow.lastRow);
+              } else {
+                  console.error('Invalid row data returned:', returnedRow);
+              }
+
+              // Clear form
+              document.getElementById('frmAddRecord').reset();
+              document.getElementById('group').value = ' ';
+          })
+          .withFailureHandler(function(error) {
+              console.error('Error:', error);
+              customConfirm('Error adding row: ' + error.message);
+          })
+          .appendRow(dataToAppend);
+  }
+  
+  function validateSz(value) {
+    console.log('Validating SZ:', value);
+    
+    // Trim and uppercase the input
+    value = value.trim().toUpperCase();
+    
+    // Check for NA, W, P, J, J1, J2, S3, S4, A
+    if (['NA', 'W', 'P', 'J', 'J1', 'J2', 'S3', 'S4', 'A'].includes(value)) {
+      return true;
+    }
+    
+    // Check for A5 or greater
+    if (value.startsWith('A')) {
+      const number = parseInt(value.slice(1));
+      return !isNaN(number) && number >= 5;
+    }
+    
+    // If none of the above conditions are met, it's invalid
+    return false;
+  }
+
+
+  function customConfirm(message, yesLabel = 'Yes', noLabel = 'No') {
+    return new Promise((resolve, reject) => {
+      const dialog = document.getElementById('customConfirmDialog');
+      const confirmMessage = document.getElementById('confirmMessage');
+      const yesButton = document.getElementById('confirmYes');
+      const noButton = document.getElementById('confirmNo');
+
+      if (!dialog || !confirmMessage || !yesButton || !noButton) {
+          reject(new Error('Custom confirm dialog elements not found'));
+          return;
+      }
+
+      confirmMessage.innerHTML = message;
+      yesButton.textContent = yesLabel;
+      noButton.textContent = noLabel;
+      dialog.style.display = 'block';
+
+      yesButton.onclick = () => {
+          dialog.style.display = 'none';
+          resolve(true);
+      };
+
+      noButton.onclick = () => {
+          dialog.style.display = 'none';
+          resolve(false);
+      };
+    });
+  }
+
+  function showEmptyPermidDialog(message) {
+    console.log('Attempting to show empty permid error dialog');
+    return new Promise((resolve, reject) => {
+      const dialog = document.getElementById('EmptyPermidDialog');
+      const confirmEmptyPermidMessage = dialog.querySelector('#EmptyPermidMessage');
+      const closeButton = dialog.querySelector('#ConfirmClose');
+
+      console.log('Dialog elements:', { dialog, confirmEmptyPermidMessage });
+
+      if (!dialog || !confirmEmptyPermidMessage) {
+        console.error('Empty permid error dialog elements not found');
+        reject(new Error('Empty permid error dialog elements not found'));
+        return;
+      }
+
+      confirmEmptyPermidMessage.textContent = message;
+
+      const okButton = document.createElement('button');
+      okButton.textContent = 'OK';
+      okButton.className = 'modal-button';
+      confirmEmptyPermidMessage.appendChild(okButton);
+
+      console.log('Dialog content set, about to display');
+      dialog.style.display = 'block';
+
+      const closeModal = () => {
+        dialog.style.display = 'none';
+        okButton.remove(); // Remove the dynamically added button
+        resolve();
+      };
+
+      okButton.addEventListener('click', function() {
+        console.log('OK button clicked');
+        this.classList.add('blink-on-click');
+        
+        setTimeout(() => {
+          closeModal();
+          document.getElementById('permid').focus(); // Set focus to permid input
+        }, 500); // Match this duration with the blink animation duration
+      });
+
+      closeButton.addEventListener('click', () => {
+        closeModal();
+        document.getElementById('permid').focus(); // Set focus to permid input
+      });
+    });
+  }
+
+  function showCustomSzErrorDialog(message) {
+    console.log('Attempting to show SZ error dialog');
+    return new Promise((resolve, reject) => {
+      const dialog = document.getElementById('customSzErrorDialog');
+      const confirmSzMessage = dialog.querySelector('#szConfirmMessage');
+
+      console.log('Dialog elements:', { dialog, confirmSzMessage });
+
+      if (!dialog || !confirmSzMessage) {
+        console.error('Custom Sz error dialog elements not found');
+        reject(new Error('Custom Sz error dialog elements not found'));
+        return;
+      }
+
+      // Format the message with line breaks and grouping
+      const formattedMessage = `
+        Invalid SZ format.<br>
+        Please enter one of the following:
+        <br><br>
+        NA,<br>
+        W,<br>
+        P,<br>
+        J, J1, J2,<br>
+        S3, S4,<br>
+        A, or A5 (or greater)<br>
+      `;           
+      
+      confirmSzMessage.innerHTML = formattedMessage;
+
+      const okButton = document.createElement('button');
+      okButton.textContent = 'OK';
+      okButton.className = 'selectButton';
+      confirmSzMessage.appendChild(okButton);
+
+      console.log('Dialog content set, about to display');
+      dialog.style.display = 'block';
+
+      okButton.addEventListener('click', function() {
+        console.log('OK button clicked');
+        this.classList.add('blink-on-click');
+        
+        setTimeout(() => {
+          dialog.style.display = 'none';
+          resolve();
+        }, 500); // Match this duration with the blink animation duration
+      });
+    });
+  }
+
+  function displaySuccessMessage(returnedRow) {
+    const submitButton = document.getElementById('submitbutton');
+    submitButton.disabled = true; // Disable the button
+    submitButton.textContent = 'Record Successfully Added';
+    submitButton.style.backgroundColor = 'green';
+    submitButton.style.color = 'white';
+    console.log('returnedRow = ',returnedRow);
+
+    setTimeout(() => {
+      submitButton.disabled = false;
+      submitButton.textContent = 'Submit';
+      submitButton.style.backgroundColor = ''; // Reset background color
+      submitButton.style.color = ''; // Reset text color
+    },2000); // Restore button after 2 seconds
+
+    setTimeout(function() { google.script.host.close();}, 1000); // Close after 1 seconds
+    // Call the server-side function for set focus and highlight
+    google.script.run.setFocusAndHighlightLater(returnedRow, true);
+  }
+</script>
+</body>
+</html>

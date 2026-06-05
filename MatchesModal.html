@@ -1,0 +1,63 @@
+<!DOCTYPE html>
+<html>
+  <head>
+    <base target="_top">
+    <style>
+      body {
+        font-family: Arial, sans-serif;
+      }
+      .button {
+        background-color: white;
+        margin: 5px;
+        padding: 10px;
+        font-size: 14px;
+        width: 70%;
+        text-align: left;
+        border: 1px solid #888;
+        border-radius: 6px;
+        cursor: pointer;
+      }
+      .button:hover {
+        background-color: #45a049;
+      }
+      #buttonContainer {
+        max-height: 600px;
+        overflow-y: auto;
+      }
+      /* CSS for blink effect */
+      @keyframes blink {
+        0%, 100% { background-color: #f0f0f0; }
+        50% { background-color: #fffec5; }
+      }
+      .blink-on-click {
+        animation: blink 0.5s ease-in-out;
+      }
+    </style>
+  </head>
+  <body>
+    <div id="matchMessage"></div>
+    <div id="buttonContainer"></div>    
+    <script>
+      google.script.run.withSuccessHandler(displayMatches).getMatches();
+
+      function displayMatches(matches) {
+        const buttonContainer = document.getElementById('buttonContainer');
+        buttonContainer.innerHTML = '';
+
+        matches.forEach((match, index) => {
+          const button = document.createElement('button');
+          button.className = 'button';
+          button.textContent = `${index + 1}. ${match.permid || 'Unknown PermID'} (Row ${match.rowNumber || 'Unknown'})`;
+          button.onclick = function() {
+            this.classList.add('blink-on-click');
+            setTimeout(() => {
+              google.script.run.handleSelectedMatch(index);
+              google.script.host.close();
+            }, 500);
+          };
+          buttonContainer.appendChild(button);
+        });
+      }
+    </script>
+  </body>
+</html>
