@@ -2702,12 +2702,20 @@ function compareCategoriesOrder(cat1, cat2) {
  */
 function compareCohortIDs(id1, id2) {
   logCall("compareCohortIDs", { id1: id1, id2: id2});
-  var [, letter1, year1] = id1.match(/^([A-Z]) Cohort (\d{4})/);
-  var [, letter2, year2] = id2.match(/^([A-Z]) Cohort (\d{4})/);
-  
+  const m1 = id1.match(/^([A-Z]) Cohort (\d{4})/);
+  const m2 = id2.match(/^([A-Z]) Cohort (\d{4})/);
+  if (!m1 || !m2) {
+    const bad = !m1 ? id1 : id2;
+    Logger.log("compareCohortIDs: WARNING — malformed cohort PermID '" + bad + "'. Falling back to localeCompare.");
+    SpreadsheetApp.getUi().alert("Sort warning: PermID '" + bad + "' does not match the expected cohort format (e.g. 'U Cohort 2025'). The record has been placed but may be out of order. Please review and correct this PermID.");
+    return id1.localeCompare(id2);
+  }
+  var [, letter1, year1] = m1;
+  var [, letter2, year2] = m2;
+
   if (year1 !== year2) return year1 - year2;
   if (letter1 !== letter2) return letter1.localeCompare(letter2);
-  
+
   // If cohort identifiers are the same, compare the rest
   return compareAlphaNumeric(id1.split(': ')[1], id2.split(': ')[1]);
 }
@@ -2793,8 +2801,16 @@ function compareNonCohortIDs(id1, id2) {
 function compareUntaggedIDs(id1, id2) {
   logCall("compareUntaggedIDs", { id1: id1, id2: id2});
   // Extract the alphanumeric part before "(was temp" for comparison
-  var part1 = id1.match(/^([A-Z][A-Z0-9]+)/)[1];
-  var part2 = id2.match(/^([A-Z][A-Z0-9]+)/)[1];
+  const r1 = id1.match(/^([A-Z][A-Z0-9]+)/);
+  const r2 = id2.match(/^([A-Z][A-Z0-9]+)/);
+  if (!r1 || !r2) {
+    const bad = !r1 ? id1 : id2;
+    Logger.log("compareUntaggedIDs: WARNING — malformed untagged PermID '" + bad + "'. Falling back to localeCompare.");
+    SpreadsheetApp.getUi().alert("Sort warning: PermID '" + bad + "' does not match the expected untagged format (e.g. 'RK42'). The record has been placed but may be out of order. Please review and correct this PermID.");
+    return id1.localeCompare(id2);
+  }
+  var part1 = r1[1];
+  var part2 = r2[1];
   Logger.log('Non-Cohort Tag part1 : part2 = ' + part1 + ' : ' + part2);
   return compareAlphaNumeric(part1, part2);
 }
