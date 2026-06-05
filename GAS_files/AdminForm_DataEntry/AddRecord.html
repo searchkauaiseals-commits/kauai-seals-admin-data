@@ -627,7 +627,7 @@
                   }
                 });
             } else {
-              customConfirm("Are you sure you want to <b>ADD</b> this record?")
+              customConfirm("Are you sure you want to <b>ADD</b> this record?<br>PermID: <b>" + formData.permid + "</b>")
                 .then((result) => {
                   if (result) {
                     appendNewRecord(formData);
