@@ -2001,11 +2001,11 @@ function SearchRecord(permId) {
   
   var matches = [];
   
-  for (var i = 1; i < data.length; i++) { // Start from 1 to skip header row
+  for (var i = 4; i < data.length; i++) { // Start from row 5 to skip 4 header rows
     var row = data[i];
     var cellPermId = row[3].toString().toLowerCase(); // Assuming PermID is in column D (index 3)
     Logger.log("Checking row " + (i + 1) + " with PermID: " + cellPermId);
-    
+
     if (cellPermId.indexOf(lowerPermId) !== -1) {
       Logger.log("Match found in row " + (i + 1));
       matches.push({row: row, rowNumber: i + 1});
@@ -2051,7 +2051,7 @@ function GetRecordData(permId) {
     var lowerPermId = permId.toLowerCase();
     var matches = [];
 
-    for (var i = 1; i < values.length; i++) { // Start from 1 to skip header row
+    for (var i = 4; i < values.length; i++) { // Start from row 5 to skip 4 header rows
       var row = values[i];
       var cellPermId = row[3].toString().toLowerCase(); // Assuming PermID is in column D (index 3)
       
