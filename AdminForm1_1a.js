@@ -1310,15 +1310,18 @@ function updateAgeAndSz() {
     const lastRun = new Date(lastRunDate);
     if (lastRun.getFullYear() === currentYear) {
       const message = `Age, Sz and Sz1 were updated on ${lastRun.toLocaleString()}. This can only be run once a year.`;
-      SpreadsheetApp.getUi().alert(message);
+      Logger.log("updateAgeAndSz: " + message + " Skipping.");
       return;
     }
   }
 
   // Perform Update
-  const sheet = SpreadsheetApp.getActiveSheet();
+  const sheet = SpreadsheetApp.getActiveSpreadsheet().getSheetByName('Data');
+  if (!sheet) {
+    Logger.log("updateAgeAndSz: ERROR — 'Data' sheet not found. Aborting.");
+    return;
+  }
   const lastRow = sheet.getLastRow();
-  const totalRows = lastRow - 4; // Adjust for headers if rows start at 5
 
   for (let row = 5; row <= lastRow; row++) {
     const ageCell = sheet.getRange(row, 6); // Column F (Age)
@@ -1346,12 +1349,11 @@ function updateAgeAndSz() {
 
   // Log successful execution
   scriptProperties.setProperty("lastUpdateDate", today.toISOString());
-  SpreadsheetApp.getUi().alert("Age and Sz have been successfully updated.");
   Logger.log("Age, Sz, Sz1 Updated Successfully");
 
   // Log the activity
   try {
-    const userEmail = Session.getActiveUser().getEmail();
+    const userEmail = "trigger/updateAgeAndSz";
     const details = "Age and Sz Updated.";
     const permId = "All";
     logActivity("EDIT", permId, details, userEmail);
