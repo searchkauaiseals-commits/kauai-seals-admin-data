@@ -1600,11 +1600,11 @@ function getAllDropdowns() {
   const data = ws.getRange("A2:E" + ws.getLastRow()).getValues();
   const result = { A: [], B: [], C: [], D: [], E: [] };
   data.forEach(function(row) {
-    if (row[0] !== '') result.A.push(row[0]);
-    if (row[1] !== '') result.B.push(row[1]);
-    if (row[2] !== '') result.C.push(row[2]);
-    if (row[3] !== '') result.D.push(row[3]);
-    if (row[4] !== '') result.E.push(row[4]);
+    result.A.push(row[0]);
+    result.B.push(row[1]);
+    result.C.push(row[2]);
+    result.D.push(row[3]);
+    result.E.push(row[4]);
   });
   return result;
 }
