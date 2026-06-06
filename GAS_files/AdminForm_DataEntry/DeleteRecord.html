@@ -158,7 +158,6 @@
           border: 1px;
           border-radius: 10px;
           display: block; /* Visible initially */
-          pointer-events: none; /* Overlay won't interfere with form below */
       }           
       div {
           display: flex;
@@ -806,7 +805,7 @@
 
     function populateForm(record) {
       console.log("populateform fxn: Record received:", record);
-      document.getElementById('form-overlay').style.display = 'none';
+      document.getElementById('form-overlay').style.backgroundColor = 'rgba(128, 128, 128, 0.15)';
       
       var permidInput = document.getElementById('permid-input');
       lastRowNumberDisplay.textContent = record.rowNumber;
