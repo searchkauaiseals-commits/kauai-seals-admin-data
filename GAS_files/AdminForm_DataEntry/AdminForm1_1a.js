@@ -1587,6 +1587,28 @@ function GetDropDownArray(column) {
   return columnData.map(row => row[0]);  // Extract the first value from each row
 }
 
+/**
+ * Returns all five marks-table dropdown lists in a single round-trip.
+ * Reads Lists sheet columns A-E once and returns non-empty values per column.
+ * Replaces 35 individual GetDropDownArray() calls from each form dialog.
+ *
+ * @returns {{A: string[], B: string[], C: string[], D: string[], E: string[]}}
+ */
+function getAllDropdowns() {
+  logCall("getAllDropdowns", {});
+  const ws = SpreadsheetApp.getActiveSpreadsheet().getSheetByName("Lists");
+  const data = ws.getRange("A2:E" + ws.getLastRow()).getValues();
+  const result = { A: [], B: [], C: [], D: [], E: [] };
+  data.forEach(function(row) {
+    if (row[0] !== '') result.A.push(row[0]);
+    if (row[1] !== '') result.B.push(row[1]);
+    if (row[2] !== '') result.C.push(row[2]);
+    if (row[3] !== '') result.D.push(row[3]);
+    if (row[4] !== '') result.E.push(row[4]);
+  });
+  return result;
+}
+
 //---------------------------------- Add Record Functions -----------------------------------------
 /**
  * Checks if a given permId already exists in the 'Data' sheet.

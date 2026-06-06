@@ -209,36 +209,35 @@
       .site-dropdown {width: 235px; height: 25px;}
   </style>
   <script>
-    // Function to populate dropdowns
     function populateDropdowns() {
-    // Loop through each row (1 through 7) and populate the associated dropdowns
-    for (let i = 1; i <= 7; i++) {
-      populateDropdown(`${i}number`, "A");      // Dropdown for numbers from column A
-      populateDropdown(`${i}mark`, "B");        // Dropdown for marks from column B
-      populateDropdown(`${i}location1`, "C");   // Dropdown for location1 from column C
-      populateDropdown(`${i}location1a`, "D");  // Dropdown for location1a from column D
-      populateDropdown(`${i}site`, "E");        // Dropdown for site from column E
-      }
+      google.script.run
+        .withSuccessHandler(function(data) {
+          var colMap = [
+            ['number',     'A'],
+            ['mark',       'B'],
+            ['location1',  'C'],
+            ['location1a', 'D'],
+            ['site',       'E']
+          ];
+          for (var i = 1; i <= 7; i++) {
+            colMap.forEach(function(pair) {
+              var dropdown = document.getElementById(i + pair[0]);
+              if (!dropdown) return;
+              dropdown.innerHTML = '';
+              data[pair[1]].forEach(function(value) {
+                var option = document.createElement('option');
+                option.textContent = value;
+                option.value = value;
+                dropdown.appendChild(option);
+              });
+            });
+          }
+        })
+        .withFailureHandler(function(error) {
+          console.error('getAllDropdowns failed:', error);
+        })
+        .getAllDropdowns();
     }
-
-
-    // Function to call server-side and populate a specific dropdown
-    function populateDropdown(dropdownId, column) {
-      google.script.run.withSuccessHandler(function(values) {
-        var dropdown = document.getElementById(dropdownId);  // Get the dropdown element by its ID
-        dropdown.innerHTML = '';  // Clear existing options in the dropdown
-        
-        // Loop through the values received from the server and add them as dropdown options
-        values.forEach(function(value) {
-          var option = document.createElement("option");  // Create a new option element
-          option.textContent = value;  // Set the text content of the option
-          option.value = value;  // Set the value of the option
-          dropdown.appendChild(option);  // Append the option to the dropdown
-        });
-      }).GetDropDownArray(column);  // Call the server-side function to get the dropdown values
-    }
-    
-    // Event listener for DOMContentLoaded
     document.addEventListener("DOMContentLoaded", populateDropdowns);
   </script>
 </head>

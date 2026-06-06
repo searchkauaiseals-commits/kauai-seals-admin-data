@@ -246,33 +246,36 @@
       }
     };
 
-    // Function to populate dropdowns
     function populateDropdowns() {
-    // Loop through the rows and columns to populate dropdowns
-      for (let i = 1; i <= 7; i++) {
-        populateDropdown(`${i}number`, "A");
-        populateDropdown(`${i}mark`, "B");
-        populateDropdown(`${i}location1`, "C");
-        populateDropdown(`${i}location1a`, "D");
-        populateDropdown(`${i}site`, "E");
-      }
+      google.script.run
+        .withSuccessHandler(function(data) {
+          var colMap = [
+            ['number',     'A'],
+            ['mark',       'B'],
+            ['location1',  'C'],
+            ['location1a', 'D'],
+            ['site',       'E']
+          ];
+          for (var i = 1; i <= 7; i++) {
+            colMap.forEach(function(pair) {
+              var dropdown = document.getElementById(i + pair[0]);
+              if (!dropdown) return;
+              dropdown.innerHTML = '';
+              data[pair[1]].forEach(function(value) {
+                var option = document.createElement('option');
+                option.textContent = value;
+                option.value = value;
+                dropdown.appendChild(option);
+              });
+            });
+          }
+        })
+        .withFailureHandler(function(error) {
+          console.error('getAllDropdowns failed:', error);
+        })
+        .getAllDropdowns();
     }
-    document.addEventListener("DOMContentLoaded", populateDropdowns);    // Event listener for DOMContentLoaded
-    // Function to call server-side and populate a specific dropdown
-      function populateDropdown(dropdownId, column) {
-        google.script.run.withSuccessHandler(function(values) {
-          var dropdown = document.getElementById(dropdownId);
-          dropdown.innerHTML = ''; // Clear existing options
-          values.forEach(function(value) {
-            var option = document.createElement("option");
-            option.textContent = value;
-            option.value = value;
-            dropdown.appendChild(option);
-          });
-        }).GetDropDownArray(column);
-      }
-    // Event listener for DOMContentLoaded
-    //document.addEventListener("DOMContentLoaded", populateDropdowns);
+    document.addEventListener("DOMContentLoaded", populateDropdowns);
   </script>
 </head>
 <body>
