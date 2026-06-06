@@ -208,6 +208,20 @@
       .sx-input {width: 116px;height: 25px;}
       .tagged-dropdown {width: 116px;height: 25px;}
       .dead-dropdown {width: 75px;height: 25px; background-color: #fffec5; color: red;}
+      #dead-warning-banner {
+          display: none;
+          width: 1015px;
+          background-color: #fffec5;
+          border: 2px solid #b8860b;
+          border-radius: 6px;
+          padding: 8px 12px;
+          margin-bottom: 4px;
+          color: #000;
+          font-weight: bold;
+          font-size: 13px;
+          line-height: 1.6;
+          box-sizing: border-box;
+      }
       .comment-textarea {height: 50px; width: 800px;}
       .lefttag-input {width: 116px;height: 25px;}
       .ltresight-input {width: 150px;height: 25px;}
@@ -285,7 +299,14 @@
         <button class="custom-button" id="searchbutton">Search</button>
         <input class="custom-button" type="text" id="permIdSearch" placeholder="   PermId">
         <label for="rowLabel">Row: </label>
-      <span id="lastRowNumberDisplay"></span>      
+      <span id="lastRowNumberDisplay"></span>
+    </div>
+    <div id="dead-warning-banner">
+      ⚠️ This seal is marked as DEAD. To edit this record:<br>
+      &nbsp;&nbsp;<b>Step 1:</b> Uncheck 'dead', make ALL needed changes
+      (including Group or PermID if required), then submit.<br>
+      &nbsp;&nbsp;<b>Step 2:</b> Open Edit Record again, recheck 'dead',
+      and submit to reinstate dead status.
     </div>
     <form id="frmEditRecord">  
         <div class="form-container">
@@ -1075,6 +1096,11 @@
         document.getElementById('7location1a').value = record.location1a_7 || '';
         document.getElementById('7site').value = record.site7 || ''; 
         document.getElementById('dead').value = record.dead || '';
+
+        const deadBanner = document.getElementById('dead-warning-banner');
+        deadBanner.style.display =
+          (record.dead && record.dead.trim().toLowerCase() === 'dead')
+            ? 'block' : 'none';
 
       } else {
         console.error("Unexpected format of record:", record); 
